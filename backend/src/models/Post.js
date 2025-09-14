@@ -6,7 +6,10 @@ class Post {
     this.authorUid = data.authorUid;
     this.title = data.title;
     this.slug = data.slug;
-    this.bodyMarkdown = data.bodyMarkdown;
+    this.bodyMarkdown = data.bodyMarkdown || "";
+    this.bodyHtml = data.bodyHtml || "";
+    this.excerpt = data.excerpt || "";
+    this.category = data.category || "General";
     this.tags = data.tags || [];
     this.status = data.status || "draft";
     this.createdAt = data.createdAt || new Date();

@@ -126,11 +126,19 @@ router.get("/:id", optionalAuthMiddleware, async (req, res) => {
 // POST /api/posts - Create new post
 router.post("/", authMiddleware, async (req, res) => {
   try {
-    const { title, bodyMarkdown, tags = [], status = "draft" } = req.body;
+    const {
+      title,
+      bodyMarkdown,
+      bodyHtml,
+      excerpt,
+      category = "General",
+      tags = [],
+      status = "draft",
+    } = req.body;
     const { uid } = req.user;
 
     // Validation
-    if (!title || !bodyMarkdown) {
+    if (!title || (!bodyMarkdown && !bodyHtml)) {
       return res.status(400).json({
         success: false,
         error: "Title and content are required",
@@ -144,7 +152,10 @@ router.post("/", authMiddleware, async (req, res) => {
       authorUid: uid,
       title,
       slug,
-      bodyMarkdown,
+      bodyMarkdown: bodyMarkdown || "",
+      bodyHtml: bodyHtml || "",
+      excerpt: excerpt || "",
+      category: category || "General",
       tags: Array.isArray(tags) ? tags : [],
       status,
       publishedAt: status === "published" ? new Date() : null,
@@ -170,7 +181,8 @@ router.post("/", authMiddleware, async (req, res) => {
 router.put("/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, bodyMarkdown, tags, status } = req.body;
+    const { title, bodyMarkdown, bodyHtml, excerpt, category, tags, status } =
+      req.body;
     const { uid } = req.user;
 
     const existingPost = await Post.findById(id);
@@ -200,6 +212,18 @@ router.put("/:id", authMiddleware, async (req, res) => {
 
     if (bodyMarkdown !== undefined) {
       updateData.bodyMarkdown = bodyMarkdown;
+    }
+
+    if (bodyHtml !== undefined) {
+      updateData.bodyHtml = bodyHtml;
+    }
+
+    if (excerpt !== undefined) {
+      updateData.excerpt = excerpt;
+    }
+
+    if (category !== undefined) {
+      updateData.category = category;
     }
 
     if (tags !== undefined) {

@@ -7,4 +7,15 @@ export default defineConfig({
   css: {
     postcss: "./postcss.config.cjs",
   },
+  define: {
+    global: "globalThis",
+  },
+  optimizeDeps: {
+    include: ["react-quill", "quill"],
+  },
+  resolve: {
+    alias: {
+      "react-dom/client": "react-dom/client",
+    },
+  },
 });

@@ -14,22 +14,22 @@ class User {
     const db = getDB();
     const user = new User(userData);
 
-    console.log("💾 Attempting to insert user into database:", user);
+    console.log("Attempting to insert user into database:", user);
     const result = await db.collection("users").insertOne(user);
-    console.log("💾 Insert result:", result);
+    console.log("Insert result:", result);
 
     const createdUser = { ...user, _id: result.insertedId };
-    console.log("💾 Created user object:", createdUser);
+    console.log("Created user object:", createdUser);
 
     return createdUser;
   }
 
   static async findByFirebaseUid(firebaseUid) {
     const db = getDB();
-    console.log("🔍 Searching for user with firebaseUid:", firebaseUid);
+    console.log("Searching for user with firebaseUid:", firebaseUid);
     const user = await db.collection("users").findOne({ firebaseUid });
     console.log(
-      "🔍 Search result:",
+      "Search result:",
       user ? `Found user with ID: ${user._id}` : "No user found"
     );
     return user;
@@ -63,22 +63,22 @@ class User {
 
   // Get or create user profile (useful for first-time login)
   static async getOrCreate(firebaseUser) {
-    console.log("🔍 Looking for existing user with UID:", firebaseUser.uid);
+    console.log("Looking for existing user with UID:", firebaseUser.uid);
     let user = await this.findByFirebaseUid(firebaseUser.uid);
 
     if (!user) {
-      console.log("👤 User not found, creating new user...");
+      console.log("User not found, creating new user...");
       const userData = {
         firebaseUid: firebaseUser.uid,
         name: firebaseUser.displayName || firebaseUser.email.split("@")[0],
         bio: "",
         avatarUrl: firebaseUser.photoURL || "",
       };
-      console.log("📝 Creating user with data:", userData);
+      console.log("Creating user with data:", userData);
       user = await this.create(userData);
-      console.log("✅ New user created with ID:", user._id);
+      console.log("New user created with ID:", user._id);
     } else {
-      console.log("👤 Existing user found:", user._id);
+      console.log("Existing user found:", user._id);
     }
 
     return user;

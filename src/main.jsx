@@ -7,6 +7,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import { BlogDetail } from "./pages/BlogDetail";
+import CreateBlog from "./pages/CreateBlog";
 
 import "./index.css";
 
@@ -18,14 +19,13 @@ const router = createBrowserRouter([
       { path: "/login", element: <Login /> },
       { path: "/signup", element: <Signup /> },
       { path: "/blog-detail/:id", element: <BlogDetail /> },
+      { path: "/create", element: <CreateBlog /> },
     ],
   },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>
-  </React.StrictMode>
+  <AuthProvider>
+    <RouterProvider router={router} />
+  </AuthProvider>
 );
