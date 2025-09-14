@@ -1,0 +1,30 @@
+PORT=5000
+NODE_ENV=development
+FRONTEND_URL=http://localhost:5173
+
+# MongoDB
+MONGODB_URI=mongodb+srv://kaustubhsharma68_db_user:HS1o6SLOYwcmiadL@cluster0.4pxiqie.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+
+# Redis
+REDIS_URL=redis://default:FWTuvMkIurhKxRefxPrRGzAZ5O1UucZY@redis-16257.crce179.ap-south-1-1.ec2.redns.redis-cloud.com:16257
+
+# JWT
+JWT_SECRET=9fbd39fbdcacf49b5bfa1843c489f239f9baefcc5f9d4c60a23bfae23e92f25a
+
+# Firebase Configuration
+FIREBASE_PROJECT_ID=mini-blog-platform
+
+# Firebase Service Account
+FIREBASE_SERVICE_ACCOUNT_KEY={
+  "type": "service_account",
+  "project_id": "mini-blog-platform",
+  "private_key_id": "752f707f0d1492467cb8cdc0236b789b6770b4df",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC/X8Ia+heAZzuz\nTf+LE9TVkFHjM9qKWOfv4Q9BVuUZJlVUstuaroOpfIuwENDcZ9kyTIv4ulcmUMH6\ndaFVWyjwaSPVeKNh50yWY6/+Wy7q3yTuzIxnNRh5wHP5GwkEYFp3HbUnA+JI65mn\nzY2nfBgD4YY5mBD8FExjMAvOlxoY9bovq0AD0q+5uRrf5Zdrw5NAHlqJkcggyqu9\n5JoBLgxODrP4hg9AJ+hY/GFz8l7ZA215melSlUWBCuo6EUb0cS+0G2UTeC7yGxua\nqq6YTp4wUSWZw6RnVEYRDiD0SQAuNikkeWoHKKFNi+uMf/mXXbiiZucQxGXr5hzf\nCm2kZKSTAgMBAAECggEAEiR83VvaQIUI5t29HS07Hyf4a2auEDGPg3E9pf8b5v94\nVXhDU22586ZoA8AEXPDHaXpSRrk7q9k6GoluSw5CWlBNYl52dsCbxSIcPCvezctr\nz+u6X8pr0JcLJ5GFkFGmIebCFrnKiQk03vCgvkEIcc2+kNU2vv8ZosmaRPKUOctf\n34a7LlL/hMIFwj/aLwjjv3YLp4uSRd9TQhxw4tN0yoCTOyF8sTCpohi364+kt/0K\nIN8s8cF0n06EqjZk4mRnCRD9qC5UPHlisVIXenX+s9B27+2aGe978s+Wte3jrBy0\nl4PoLHNYyAmq8NgIDb9xDCXkZQhmLvyVujif6QB4AQKBgQDoiJpWr+YM1QcR3HPY\noUkB0EV0A/UbcbYGwj88J4vy3vFWPf3zV1DvKsFOBdnCSGXiJRX8bc2j3mb9Tuem\nEBOB+elnPGHhz3bDarkXLeBE0SFFyrQP4e6Nf80JNTyo7SuXQoJ/aXoFm18L5xzh\nRyNH67ojRug+NnFQhx9s/ZssAQKBgQDSr9FN/JsZpzJnxXLMeazDcaszV8iwFean\nzt6j4sQw1u77Q2w4pFgdHs5WiiyK8d3b2KTQTQzrutI9ZqX6WsYyA4mFJZTHuaD1\neYr19LuuoW+ggN/yfC9LnK/T0iRhD3+kdOCOONWo8qQT1JEVMOSUab/m+tGZFgw8\nA5mpG8pgkwKBgQC77wOGAj3Uqys+lUSPlbKyo4gufrBPkPSDu+Rtkqy6CtNUV1/y\nluRTl+OJUpMvQWIOhtihHoFv6mSkX2w7O4z4pGmuRQ/697jNsWiMQkiadccFaBFl\nML2jYOHuijdPc/eiFV/w5+d1tp/3t78Ql3T9QJg8wKcc+NVWNw8AAGu0AQKBgFbX\nO1l+xltTjDYzr3bSrEA+6QcXptPVoyYF4cUBYkaTQRv2FXRfYSZXnUsUVvnKad0F\nNiHZsHq1nZTLa5x+r/TLenKUI/gS7mJf/8QTZQy84+rvU996CnCLG/oeQvpyzfT2\na9yTVpX1tWWrF0X5yi3WTNAjECOeb9qIzVxj5Q3bAoGAdZ2miGBOOaOm/hDf/61m\nDjc0v6I9vVCKMDVW7Z9ZDO73inzoA/j4fHm3M+VgrfN+n6Ac7w387tRVSEQ5ryOr\nCy8QbhI9uZfs6So7B1PscLfj55hVaRDf/gVy5qS5JvBfXr5zw6DYcruYn5r57Nwd\nWmcncqqMBuidlV1ObNViA5g=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@mini-blog-platform.iam.gserviceaccount.com",
+  "client_id": "102616024432508232266",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40mini-blog-platform.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

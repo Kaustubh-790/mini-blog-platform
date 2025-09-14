@@ -1,0 +1,154 @@
+const express = require("express");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+const { authMiddleware } = require("../middleware/auth");
+
+const router = express.Router();
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, "../../uploads");
+
+    // Create uploads directory if it doesn't exist
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    // Generate unique filename
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + "-" + uniqueSuffix + ext);
+  },
+});
+
+// File filter for images only
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = /jpeg|jpg|png|gif|webp/;
+  const extname = allowedTypes.test(
+    path.extname(file.originalname).toLowerCase()
+  );
+  const mimetype = allowedTypes.test(file.mimetype);
+
+  if (mimetype && extname) {
+    return cb(null, true);
+  } else {
+    cb(new Error("Only image files (JPEG, JPG, PNG, GIF, WEBP) are allowed"));
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: fileFilter,
+});
+
+// POST /api/uploads - Upload image file
+router.post("/", authMiddleware, upload.single("image"), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: "No file uploaded",
+      });
+    }
+
+    // Generate URL for the uploaded file
+    const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${
+      req.file.filename
+    }`;
+
+    res.json({
+      success: true,
+      data: {
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        size: req.file.size,
+        url: fileUrl,
+        uploadedAt: new Date(),
+      },
+    });
+  } catch (error) {
+    console.error("Upload error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to upload file",
+      message: error.message,
+    });
+  }
+});
+
+// POST /api/uploads/multiple - Upload multiple image files
+router.post(
+  "/multiple",
+  authMiddleware,
+  upload.array("images", 5),
+  (req, res) => {
+    try {
+      if (!req.files || req.files.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: "No files uploaded",
+        });
+      }
+
+      const uploadedFiles = req.files.map((file) => ({
+        filename: file.filename,
+        originalName: file.originalname,
+        size: file.size,
+        url: `${req.protocol}://${req.get("host")}/uploads/${file.filename}`,
+        uploadedAt: new Date(),
+      }));
+
+      res.json({
+        success: true,
+        data: uploadedFiles,
+      });
+    } catch (error) {
+      console.error("Multiple upload error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to upload files",
+        message: error.message,
+      });
+    }
+  }
+);
+
+// Error handling middleware for multer
+router.use((error, req, res, next) => {
+  if (error instanceof multer.MulterError) {
+    if (error.code === "LIMIT_FILE_SIZE") {
+      return res.status(400).json({
+        success: false,
+        error: "File too large",
+        message: "File size must be less than 5MB",
+      });
+    }
+    if (error.code === "LIMIT_FILE_COUNT") {
+      return res.status(400).json({
+        success: false,
+        error: "Too many files",
+        message: "Maximum 5 files allowed",
+      });
+    }
+  }
+
+  if (error.message.includes("Only image files")) {
+    return res.status(400).json({
+      success: false,
+      error: "Invalid file type",
+      message: error.message,
+    });
+  }
+
+  next(error);
+});
+
+module.exports = router;
