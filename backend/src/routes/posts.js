@@ -9,7 +9,7 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-// GET /api/posts - List posts with optional filters
+// GET /api/posts
 router.get("/", optionalAuthMiddleware, async (req, res) => {
   try {
     const {
@@ -30,19 +30,18 @@ router.get("/", optionalAuthMiddleware, async (req, res) => {
       sortOrder,
     };
 
-    // Add author filter if provided
     if (author) {
       filters.authorUid = author;
     }
 
-    // Add tags filter if provided
     if (tags) {
       filters.tags = Array.isArray(tags) ? tags : [tags];
     }
 
     const posts = await Post.findAll(filters);
 
-    // Get author information for each post
+    const totalCount = await Post.getTotalCount(filters);
+
     const postsWithAuthors = await Promise.all(
       posts.map(async (post) => {
         const author = await User.findByFirebaseUid(post.authorUid);
@@ -65,7 +64,8 @@ router.get("/", optionalAuthMiddleware, async (req, res) => {
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        total: postsWithAuthors.length,
+        total: totalCount,
+        totalPages: Math.ceil(totalCount / parseInt(limit)),
       },
     });
   } catch (error) {
@@ -78,7 +78,7 @@ router.get("/", optionalAuthMiddleware, async (req, res) => {
   }
 });
 
-// GET /api/posts/:id - Get single post
+// GET /api/posts/:id
 router.get("/:id", optionalAuthMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
@@ -91,10 +91,8 @@ router.get("/:id", optionalAuthMiddleware, async (req, res) => {
       });
     }
 
-    // Get author information
     const author = await User.findByFirebaseUid(post.authorUid);
 
-    // Get comment count
     const commentCount = await Comment.countByPostId(id);
 
     const postWithDetails = {
@@ -123,7 +121,7 @@ router.get("/:id", optionalAuthMiddleware, async (req, res) => {
   }
 });
 
-// POST /api/posts - Create new post
+// POST /api/posts
 router.post("/", authMiddleware, async (req, res) => {
   try {
     const {
@@ -134,10 +132,11 @@ router.post("/", authMiddleware, async (req, res) => {
       category = "General",
       tags = [],
       status = "draft",
+      featuredImage,
+      featuredImageAlt = "",
     } = req.body;
     const { uid } = req.user;
 
-    // Validation
     if (!title || (!bodyMarkdown && !bodyHtml)) {
       return res.status(400).json({
         success: false,
@@ -145,7 +144,6 @@ router.post("/", authMiddleware, async (req, res) => {
       });
     }
 
-    // Generate unique slug
     const slug = await Post.getUniqueSlug(title);
 
     const postData = {
@@ -158,6 +156,8 @@ router.post("/", authMiddleware, async (req, res) => {
       category: category || "General",
       tags: Array.isArray(tags) ? tags : [],
       status,
+      featuredImage: featuredImage || null,
+      featuredImageAlt: featuredImageAlt || "",
       publishedAt: status === "published" ? new Date() : null,
     };
 
@@ -177,12 +177,21 @@ router.post("/", authMiddleware, async (req, res) => {
   }
 });
 
-// PUT /api/posts/:id - Update post
+// PUT /api/posts/:id
 router.put("/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, bodyMarkdown, bodyHtml, excerpt, category, tags, status } =
-      req.body;
+    const {
+      title,
+      bodyMarkdown,
+      bodyHtml,
+      excerpt,
+      category,
+      tags,
+      status,
+      featuredImage,
+      featuredImageAlt,
+    } = req.body;
     const { uid } = req.user;
 
     const existingPost = await Post.findById(id);
@@ -204,7 +213,6 @@ router.put("/:id", authMiddleware, async (req, res) => {
 
     if (title !== undefined) {
       updateData.title = title;
-      // Generate new slug if title changed
       if (title !== existingPost.title) {
         updateData.slug = await Post.getUniqueSlug(title, id);
       }
@@ -232,10 +240,17 @@ router.put("/:id", authMiddleware, async (req, res) => {
 
     if (status !== undefined) {
       updateData.status = status;
-      // Set publishedAt if status changed to published
       if (status === "published" && existingPost.status !== "published") {
         updateData.publishedAt = new Date();
       }
+    }
+
+    if (featuredImage !== undefined) {
+      updateData.featuredImage = featuredImage;
+    }
+
+    if (featuredImageAlt !== undefined) {
+      updateData.featuredImageAlt = featuredImageAlt;
     }
 
     const updatedPost = await Post.updateById(id, updateData, uid);
@@ -254,7 +269,7 @@ router.put("/:id", authMiddleware, async (req, res) => {
   }
 });
 
-// DELETE /api/posts/:id - Delete post
+// DELETE /api/posts/:id
 router.delete("/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
@@ -275,10 +290,8 @@ router.delete("/:id", authMiddleware, async (req, res) => {
       });
     }
 
-    // Delete associated comments
     await Comment.deleteByPostId(id);
 
-    // Delete the post
     const deleted = await Post.deleteById(id, uid);
 
     if (deleted) {

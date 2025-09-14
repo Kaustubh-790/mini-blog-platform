@@ -19,6 +19,8 @@ export default function CreateBlog() {
     tags: "",
     category: "General",
     coverImage: null,
+    coverImageUrl: null,
+    coverImageAlt: "",
     status: "draft",
   });
 
@@ -47,20 +49,61 @@ export default function CreateBlog() {
     }));
   };
 
-  const handleImageUpload = (event) => {
+  const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
-      setBlogData((prev) => ({
-        ...prev,
-        coverImage: file,
-      }));
+      try {
+        setIsUploading(true);
 
-      // Create preview URL
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target.result);
-      };
-      reader.readAsDataURL(file);
+        // Create preview URL immediately
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setImagePreview(e.target.result);
+        };
+        reader.readAsDataURL(file);
+
+        // Upload image to server
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const token = await user.getIdToken();
+        const response = await fetch(
+          `${
+            import.meta.env.VITE_BACKEND_API_URL || "http://localhost:5000/api"
+          }/uploads`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || "Failed to upload image");
+        }
+
+        // Update blog data with uploaded image URL
+        setBlogData((prev) => ({
+          ...prev,
+          coverImage: file,
+          coverImageUrl: result.data.url,
+        }));
+
+        console.log("Image uploaded successfully:", result.data);
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        alert(`Error uploading image: ${error.message}`);
+        // Reset file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
 
@@ -86,6 +129,8 @@ export default function CreateBlog() {
               .filter((tag) => tag)
           : [],
         status: publishStatus,
+        featuredImage: blogData.coverImageUrl,
+        featuredImageAlt: blogData.coverImageAlt,
       };
 
       // Get auth token
@@ -129,10 +174,10 @@ export default function CreateBlog() {
   const renderPreview = () => {
     return (
       <div className="space-y-6">
-        {imagePreview && (
+        {(imagePreview || blogData.coverImageUrl) && (
           <img
-            src={imagePreview}
-            alt="Cover"
+            src={imagePreview || blogData.coverImageUrl}
+            alt={blogData.coverImageAlt || "Cover"}
             className="w-full h-64 object-cover rounded-lg"
           />
         )}
@@ -255,7 +300,15 @@ export default function CreateBlog() {
                     size="sm"
                     onClick={() => {
                       setImagePreview(null);
-                      setBlogData((prev) => ({ ...prev, coverImage: null }));
+                      setBlogData((prev) => ({
+                        ...prev,
+                        coverImage: null,
+                        coverImageUrl: null,
+                        coverImageAlt: "",
+                      }));
+                      if (fileInputRef.current) {
+                        fileInputRef.current.value = "";
+                      }
                     }}
                     className="absolute top-2 right-2"
                   >
@@ -279,8 +332,32 @@ export default function CreateBlog() {
                 onChange={handleImageUpload}
                 className="hidden"
               />
+              {isUploading && (
+                <div className="text-center py-2">
+                  <p className="text-sm text-blue-600">
+                    Uploading and optimizing image...
+                  </p>
+                </div>
+              )}
             </div>
           </div>
+
+          {/* Image Alt Text */}
+          {blogData.coverImageUrl && (
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Image Alt Text
+              </label>
+              <Input
+                type="text"
+                placeholder="Describe the image for accessibility..."
+                value={blogData.coverImageAlt}
+                onChange={(e) =>
+                  handleInputChange("coverImageAlt", e.target.value)
+                }
+              />
+            </div>
+          )}
 
           <div className="flex gap-3 pt-4 border-t">
             <Button

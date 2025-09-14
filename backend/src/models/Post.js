@@ -12,6 +12,8 @@ class Post {
     this.category = data.category || "General";
     this.tags = data.tags || [];
     this.status = data.status || "draft";
+    this.featuredImage = data.featuredImage || null;
+    this.featuredImageAlt = data.featuredImageAlt || "";
     this.createdAt = data.createdAt || new Date();
     this.updatedAt = data.updatedAt || new Date();
     this.publishedAt = data.publishedAt || null;
@@ -67,6 +69,31 @@ class Post {
       .limit(filters.limit || 20)
       .skip(filters.skip || 0)
       .toArray();
+  }
+
+  static async getTotalCount(filters = {}) {
+    const db = getDB();
+    const query = {};
+
+    // Apply filters (same as findAll)
+    if (filters.status) {
+      query.status = filters.status;
+    }
+
+    if (filters.authorUid) {
+      query.authorUid = filters.authorUid;
+    }
+
+    if (filters.tags && filters.tags.length > 0) {
+      query.tags = { $in: filters.tags };
+    }
+
+    // Default to published posts if no status filter
+    if (!filters.status) {
+      query.status = "published";
+    }
+
+    return await db.collection("posts").countDocuments(query);
   }
 
   static async updateById(id, updateData, authorUid) {

@@ -2,6 +2,7 @@ const express = require("express");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const sharp = require("sharp");
 const { authMiddleware } = require("../middleware/auth");
 
 const router = express.Router();
@@ -49,8 +50,8 @@ const upload = multer({
   fileFilter: fileFilter,
 });
 
-// POST /api/uploads - Upload image file
-router.post("/", authMiddleware, upload.single("image"), (req, res) => {
+// POST /api/uploads - Upload and optimize image file
+router.post("/", authMiddleware, upload.single("image"), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -59,21 +60,82 @@ router.post("/", authMiddleware, upload.single("image"), (req, res) => {
       });
     }
 
-    // Generate URL for the uploaded file
-    const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${
-      req.file.filename
-    }`;
+    const originalPath = req.file.path;
+    const optimizedPath = originalPath.replace(/\.[^/.]+$/, "_optimized.webp");
 
-    res.json({
-      success: true,
-      data: {
-        filename: req.file.filename,
-        originalName: req.file.originalname,
-        size: req.file.size,
-        url: fileUrl,
-        uploadedAt: new Date(),
-      },
-    });
+    try {
+      console.log("Starting image optimization...");
+      console.log("Original path:", originalPath);
+      console.log("Optimized path:", optimizedPath);
+
+      // Optimize image using Sharp
+      await sharp(originalPath)
+        .resize(1200, 800, {
+          fit: "inside",
+          withoutEnlargement: true,
+        })
+        .webp({ quality: 85 })
+        .toFile(optimizedPath);
+
+      console.log("Image optimization completed successfully");
+
+      // Remove original file
+      fs.unlinkSync(originalPath);
+      console.log("Original file removed");
+
+      // Update filename to optimized version
+      const optimizedFilename = req.file.filename.replace(
+        /\.[^/.]+$/,
+        "_optimized.webp"
+      );
+
+      // Generate URL for the optimized file
+      const fileUrl = `${req.protocol}://${req.get(
+        "host"
+      )}/uploads/${optimizedFilename}`;
+
+      // Get optimized file stats
+      const optimizedStats = fs.statSync(optimizedPath);
+
+      console.log("Optimized filename:", optimizedFilename);
+      console.log("File URL:", fileUrl);
+
+      res.json({
+        success: true,
+        data: {
+          filename: optimizedFilename,
+          originalName: req.file.originalname,
+          size: optimizedStats.size,
+          originalSize: req.file.size,
+          url: fileUrl,
+          uploadedAt: new Date(),
+          optimized: true,
+        },
+      });
+    } catch (optimizationError) {
+      console.error("Image optimization error:", optimizationError);
+
+      // If optimization fails, use original file
+      const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${
+        req.file.filename
+      }`;
+
+      console.log("Using original file due to optimization error");
+      console.log("Original filename:", req.file.filename);
+      console.log("File URL:", fileUrl);
+
+      res.json({
+        success: true,
+        data: {
+          filename: req.file.filename,
+          originalName: req.file.originalname,
+          size: req.file.size,
+          url: fileUrl,
+          uploadedAt: new Date(),
+          optimized: false,
+        },
+      });
+    }
   } catch (error) {
     console.error("Upload error:", error);
     res.status(500).json({
