@@ -12,7 +12,7 @@ export function Footer() {
                 <div className="w-4 h-4 bg-white rounded-sm transform rotate-45"></div>
               </div>
               <span className="text-xl font-semibold text-gray-900">
-                StoryStream
+                ByteBites
               </span>
             </Link>
             <p className="text-gray-600 text-sm">

@@ -16,7 +16,7 @@ export function Navbar() {
             <div className="w-4 h-4 bg-primary-foreground rounded-sm transform rotate-45"></div>
           </div>
           <span className="text-xl font-semibold text-foreground">
-            StoryStream
+            ByteBites
           </span>
         </Link>
 

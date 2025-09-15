@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ImageWithFallback } from "../components/FallBackImage";
-import {
-  Heart,
-  MessageCircle,
-  Share2,
-  Bookmark,
-  ArrowLeft,
-} from "lucide-react";
+import { MessageCircle, Share2, Bookmark, ArrowLeft, Heart, Edit, Trash2, X, Check } from "lucide-react";
 import { Button } from "../components/ui/Button";
 import { Textarea } from "../components/ui/Textarea";
 import { useAuth } from "../contexts/AuthContext";
+import api from "../services/api";
 
 export function BlogDetail() {
   const { id } = useParams();
@@ -21,18 +16,19 @@ export function BlogDetail() {
   const [error, setError] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingCommentText, setEditingCommentText] = useState("");
 
   useEffect(() => {
     fetchPost();
+    fetchComments();
   }, [id]);
 
   const fetchPost = async () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${
-          import.meta.env.VITE_BACKEND_API_URL || "http://localhost:5000/api"
-        }/posts/${id}`
+        `${import.meta.env.VITE_BACKEND_API_URL}/posts/${id}`
       );
       const result = await response.json();
 
@@ -49,37 +45,107 @@ export function BlogDetail() {
     }
   };
 
+  const fetchComments = async () => {
+    try {
+      const response = await api.getComments(id);
+      console.log("Comments response:", response);
+      if (response.success) {
+        setComments(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+    }
+  };
+
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!user || !newComment.trim()) return;
 
     try {
       const token = await user.getIdToken();
-      const response = await fetch(
-        `${
-          import.meta.env.VITE_BACKEND_API_URL || "http://localhost:5000/api"
-        }/comments/posts/${id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ content: newComment }),
-        }
-      );
+      const response = await api.createComment(id, newComment, token);
 
-      const result = await response.json();
-      if (response.ok) {
+      if (response.success) {
         setNewComment("");
-        // Refresh comments or add to list
-        fetchPost(); // This will also refresh comments
+        fetchComments(); // Refresh comments list
+        fetchPost(); // Refresh post to update comment count
       } else {
-        throw new Error(result.error || "Failed to add comment");
+        throw new Error(response.error || "Failed to add comment");
       }
     } catch (error) {
       console.error("Error adding comment:", error);
       alert("Failed to add comment. Please try again.");
+    }
+  };
+
+  const handleLikeComment = async (commentId) => {
+    if (!user) return;
+
+    try {
+      const token = await user.getIdToken();
+      const comment = comments.find(c => c._id === commentId);
+      
+      if (comment.isLikedByUser) {
+        await api.unlikeComment(commentId, token);
+      } else {
+        await api.likeComment(commentId, token);
+      }
+      
+      fetchComments(); // Refresh comments to get updated like status
+    } catch (error) {
+      console.error("Error liking comment:", error);
+      alert("Failed to update like. Please try again.");
+    }
+  };
+
+  const handleEditComment = (comment) => {
+    setEditingCommentId(comment._id);
+    setEditingCommentText(comment.body || comment.content);
+  };
+
+  const handleSaveEditComment = async (commentId) => {
+    if (!user || !editingCommentText.trim()) return;
+
+    try {
+      const token = await user.getIdToken();
+      const response = await api.updateComment(commentId, editingCommentText, token);
+
+      if (response.success) {
+        setEditingCommentId(null);
+        setEditingCommentText("");
+        fetchComments(); // Refresh comments list
+      } else {
+        throw new Error(response.error || "Failed to update comment");
+      }
+    } catch (error) {
+      console.error("Error updating comment:", error);
+      alert("Failed to update comment. Please try again.");
+    }
+  };
+
+  const handleCancelEditComment = () => {
+    setEditingCommentId(null);
+    setEditingCommentText("");
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    if (!user) return;
+    
+    if (!confirm("Are you sure you want to delete this comment?")) return;
+
+    try {
+      const token = await user.getIdToken();
+      const response = await api.deleteComment(commentId, token);
+
+      if (response.success) {
+        fetchComments(); // Refresh comments list
+        fetchPost(); // Refresh post to update comment count
+      } else {
+        throw new Error(response.error || "Failed to delete comment");
+      }
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      alert("Failed to delete comment. Please try again.");
     }
   };
 
@@ -154,6 +220,13 @@ export function BlogDetail() {
 
       {/* Article Header */}
       <header className="mb-8">
+        <div className="mb-4 relative flex justify-center">
+          <ImageWithFallback
+            src={post.featuredImage}
+            loading="lazy"
+            className="rounded-lg max-h-100 w-full object-cover shadow-md"
+          />
+        </div>
         <h1 className="text-4xl font-bold text-gray-900 mb-6 leading-tight">
           {post.title}
         </h1>
@@ -173,6 +246,7 @@ export function BlogDetail() {
               }
               alt={post.author?.name || "Author"}
               className="w-12 h-12 rounded-full object-cover"
+              loading="lazy"
             />
             <div>
               <p className="font-medium text-gray-900">
@@ -182,7 +256,7 @@ export function BlogDetail() {
                 {new Date(
                   post.publishedAt || post.createdAt
                 ).toLocaleDateString()}{" "}
-                •{post.category && ` ${post.category}`}
+                â€¢{post.category && ` ${post.category}`}
               </p>
             </div>
           </div>
@@ -284,13 +358,13 @@ export function BlogDetail() {
 
         {/* Comments List */}
         <div className="space-y-6">
-          {post.comments && post.comments.length > 0 ? (
-            post.comments.map((comment) => (
+          {comments && comments.length > 0 ? (
+            comments.map((comment) => (
               <div key={comment._id} className="flex items-start gap-3">
                 <ImageWithFallback
                   src={
                     comment.author?.avatarUrl ||
-                    "https://images.unsplash.com/photo-1719257751404-1dea075324bd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMG1hbnxlbnwxfHx8fDE3NTc3ODEzNjl8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+                    "https://images.unsplash.com/photo-1719257751404-1dea075324bd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx8fDE3NTc3ODEzNjl8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
                   }
                   alt={comment.author?.name || "Commenter"}
                   className="w-10 h-10 rounded-full object-cover flex-shrink-0"
@@ -304,9 +378,82 @@ export function BlogDetail() {
                       {new Date(comment.createdAt).toLocaleDateString()}
                     </span>
                   </div>
-                  <p className="text-gray-700 text-sm leading-relaxed">
-                    {comment.content}
-                  </p>
+                  
+                  {editingCommentId === comment._id ? (
+                    <div className="space-y-2">
+                      <Textarea
+                        value={editingCommentText}
+                        onChange={(e) => setEditingCommentText(e.target.value)}
+                        className="min-h-16 text-sm"
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleSaveEditComment(comment._id)}
+                          className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-1"
+                        >
+                          <Check className="h-3 w-3" />
+                          Save
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={handleCancelEditComment}
+                          className="flex items-center gap-1"
+                        >
+                          <X className="h-3 w-3" />
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-gray-700 text-sm leading-relaxed mb-2">
+                        {comment.body || comment.content}
+                      </p>
+                      
+                      <div className="flex items-center gap-3">
+                        {/* Like Button */}
+                        {user && (
+                          <button
+                            onClick={() => handleLikeComment(comment._id)}
+                            className={`flex items-center gap-1 text-xs transition-colors ${
+                              comment.isLikedByUser
+                                ? "text-red-500 hover:text-red-600"
+                                : "text-gray-500 hover:text-red-500"
+                            }`}
+                          >
+                            <Heart
+                              className={`h-3 w-3 ${
+                                comment.isLikedByUser ? "fill-current" : ""
+                              }`}
+                            />
+                            <span>{comment.likeCount || 0}</span>
+                          </button>
+                        )}
+                        
+                        {/* Edit and Delete buttons - only for comment author */}
+                        {user && comment.author && user.uid === comment.authorUid && (
+                          <>
+                            <button
+                              onClick={() => handleEditComment(comment)}
+                              className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-500 transition-colors"
+                            >
+                              <Edit className="h-3 w-3" />
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteComment(comment._id)}
+                              className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-500 transition-colors"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              Delete
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             ))

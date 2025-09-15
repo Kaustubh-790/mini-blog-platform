@@ -6,6 +6,8 @@ class Comment {
     this.postId = new ObjectId(data.postId);
     this.authorUid = data.authorUid;
     this.body = data.body;
+    this.likes = data.likes || [];
+    this.likeCount = data.likeCount || 0;
     this.createdAt = data.createdAt || new Date();
     this.updatedAt = data.updatedAt || new Date();
   }
@@ -88,6 +90,47 @@ class Comment {
       postId: new ObjectId(postId),
     });
     return result.deletedCount;
+  }
+
+  static async likeComment(id, userUid) {
+    const db = getDB();
+    const result = await db
+      .collection("comments")
+      .findOneAndUpdate(
+        { _id: new ObjectId(id), likes: { $ne: userUid } },
+        { 
+          $push: { likes: userUid },
+          $inc: { likeCount: 1 },
+          $set: { updatedAt: new Date() }
+        },
+        { returnDocument: "after" }
+      );
+    return result.value;
+  }
+
+  static async unlikeComment(id, userUid) {
+    const db = getDB();
+    const result = await db
+      .collection("comments")
+      .findOneAndUpdate(
+        { _id: new ObjectId(id), likes: userUid },
+        { 
+          $pull: { likes: userUid },
+          $inc: { likeCount: -1 },
+          $set: { updatedAt: new Date() }
+        },
+        { returnDocument: "after" }
+      );
+    return result.value;
+  }
+
+  static async isLikedByUser(id, userUid) {
+    const db = getDB();
+    const comment = await db.collection("comments").findOne({
+      _id: new ObjectId(id),
+      likes: userUid
+    });
+    return !!comment;
   }
 }
 

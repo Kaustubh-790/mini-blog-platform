@@ -35,6 +35,7 @@ router.get("/posts/:postId", optionalAuthMiddleware, async (req, res) => {
     const commentsWithAuthors = await Promise.all(
       comments.map(async (comment) => {
         const author = await User.findByFirebaseUid(comment.authorUid);
+        const isLikedByUser = req.user ? await Comment.isLikedByUser(comment._id, req.user.uid) : false;
         return {
           ...comment,
           author: author
@@ -44,6 +45,7 @@ router.get("/posts/:postId", optionalAuthMiddleware, async (req, res) => {
                 avatarUrl: author.avatarUrl,
               }
             : null,
+          isLikedByUser,
         };
       })
     );
@@ -228,6 +230,84 @@ router.delete("/:id", authMiddleware, async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Failed to delete comment",
+      message: error.message,
+    });
+  }
+});
+
+// POST /api/comments/:id/like - Like a comment
+router.post("/:id/like", authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { uid } = req.user;
+
+    const existingComment = await Comment.findById(id);
+    if (!existingComment) {
+      return res.status(404).json({
+        success: false,
+        error: "Comment not found",
+      });
+    }
+
+    const updatedComment = await Comment.likeComment(id, uid);
+
+    if (updatedComment) {
+      res.json({
+        success: true,
+        data: updatedComment,
+        message: "Comment liked successfully",
+      });
+    } else {
+      // Comment was already liked by this user
+      res.json({
+        success: false,
+        error: "Comment already liked by this user",
+      });
+    }
+  } catch (error) {
+    console.error("Like comment error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to like comment",
+      message: error.message,
+    });
+  }
+});
+
+// DELETE /api/comments/:id/like - Unlike a comment
+router.delete("/:id/like", authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { uid } = req.user;
+
+    const existingComment = await Comment.findById(id);
+    if (!existingComment) {
+      return res.status(404).json({
+        success: false,
+        error: "Comment not found",
+      });
+    }
+
+    const updatedComment = await Comment.unlikeComment(id, uid);
+
+    if (updatedComment) {
+      res.json({
+        success: true,
+        data: updatedComment,
+        message: "Comment unliked successfully",
+      });
+    } else {
+      // Comment was not liked by this user
+      res.json({
+        success: false,
+        error: "Comment not liked by this user",
+      });
+    }
+  } catch (error) {
+    console.error("Unlike comment error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to unlike comment",
       message: error.message,
     });
   }

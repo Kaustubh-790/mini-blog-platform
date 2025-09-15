@@ -95,19 +95,19 @@ class ApiService {
     );
   }
 
-  async createComment(postId, commentData, token) {
+  async createComment(postId, commentBody, token) {
     return this.request(`/comments/posts/${postId}`, {
       method: "POST",
       headers: this.getAuthHeaders(token),
-      body: JSON.stringify(commentData),
+      body: JSON.stringify({ body: commentBody }),
     });
   }
 
-  async updateComment(id, commentData, token) {
+  async updateComment(id, commentBody, token) {
     return this.request(`/comments/${id}`, {
       method: "PUT",
       headers: this.getAuthHeaders(token),
-      body: JSON.stringify(commentData),
+      body: JSON.stringify({ body: commentBody }),
     });
   }
 
@@ -115,6 +115,34 @@ class ApiService {
     return this.request(`/comments/${id}`, {
       method: "DELETE",
       headers: this.getAuthHeaders(token),
+    });
+  }
+
+  async getComment(id, token) {
+    return this.request(`/comments/${id}`, {
+      headers: this.getAuthHeaders(token),
+    });
+  }
+
+  async likeComment(id, token) {
+    return this.request(`/comments/${id}/like`, {
+      method: "POST",
+      headers: this.getAuthHeaders(token),
+    });
+  }
+
+  async unlikeComment(id, token) {
+    return this.request(`/comments/${id}/like`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(token),
+    });
+  }
+
+  async reportComment(id, reason, token) {
+    return this.request(`/comments/${id}/report`, {
+      method: "POST",
+      headers: this.getAuthHeaders(token),
+      body: JSON.stringify({ reason }),
     });
   }
 
