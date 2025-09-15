@@ -270,7 +270,8 @@ export function BlogDetail() {
                 {new Date(
                   post.publishedAt || post.createdAt
                 ).toLocaleDateString()}{" "}
-                â€¢{post.category && ` ${post.category}`}
+                <span className="text-sm text-gray-700 p-1">Category</span> :{" "}
+                {post.category && ` ${post.category}`}
               </p>
             </div>
           </div>
