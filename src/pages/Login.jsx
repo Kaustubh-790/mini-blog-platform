@@ -23,7 +23,36 @@ const Login = () => {
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/");
     } catch (error) {
-      setError(error.message);
+      console.error("Login error:", error);
+
+      switch (error.code) {
+        case "auth/user-not-found":
+          setError(
+            "No account found with this email address. Please sign up first."
+          );
+          break;
+        case "auth/wrong-password":
+        case "auth/invalid-credential":
+          setError("Wrong credentials. Please check your email and password.");
+          break;
+        case "auth/invalid-email":
+          setError("Please enter a valid email address.");
+          break;
+        case "auth/user-disabled":
+          setError("This account has been disabled. Please contact support.");
+          break;
+        case "auth/too-many-requests":
+          setError("Too many failed login attempts. Please try again later.");
+          break;
+        case "auth/network-request-failed":
+          setError(
+            "Network error. Please check your internet connection and try again."
+          );
+          break;
+        default:
+          setError("Login failed. Please try again.");
+          break;
+      }
     } finally {
       setLoading(false);
     }
@@ -37,7 +66,29 @@ const Login = () => {
       await signInWithPopup(auth, googleProvider);
       navigate("/");
     } catch (error) {
-      setError(error.message);
+      console.error("Google login error:", error);
+
+      switch (error.code) {
+        case "auth/popup-closed-by-user":
+          setError("Login cancelled. Please try again.");
+          break;
+        case "auth/popup-blocked":
+          setError("Popup blocked. Please allow popups and try again.");
+          break;
+        case "auth/account-exists-with-different-credential":
+          setError(
+            "An account already exists with this email using a different sign-in method."
+          );
+          break;
+        case "auth/network-request-failed":
+          setError(
+            "Network error. Please check your internet connection and try again."
+          );
+          break;
+        default:
+          setError("Google login failed. Please try again.");
+          break;
+      }
     } finally {
       setLoading(false);
     }
@@ -51,7 +102,29 @@ const Login = () => {
       await signInWithPopup(auth, githubProvider);
       navigate("/");
     } catch (error) {
-      setError(error.message);
+      console.error("GitHub login error:", error);
+
+      switch (error.code) {
+        case "auth/popup-closed-by-user":
+          setError("Login cancelled. Please try again.");
+          break;
+        case "auth/popup-blocked":
+          setError("Popup blocked. Please allow popups and try again.");
+          break;
+        case "auth/account-exists-with-different-credential":
+          setError(
+            "An account already exists with this email using a different sign-in method."
+          );
+          break;
+        case "auth/network-request-failed":
+          setError(
+            "Network error. Please check your internet connection and try again."
+          );
+          break;
+        default:
+          setError("GitHub login failed. Please try again.");
+          break;
+      }
     } finally {
       setLoading(false);
     }
@@ -172,6 +245,16 @@ const Login = () => {
           {error && (
             <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
               {error}
+              {error.includes("Please sign up first") && (
+                <div className="mt-2">
+                  <Link
+                    to="/signup"
+                    className="text-primary hover:text-primary/80 underline"
+                  >
+                    Go to Sign Up page
+                  </Link>
+                </div>
+              )}
             </div>
           )}
 
