@@ -3,6 +3,7 @@ const { getDB } = require("../config/database");
 class User {
   constructor(data) {
     this.firebaseUid = data.firebaseUid;
+    this.email = data.email || "";
     this.name = data.name;
     this.bio = data.bio || "";
     this.avatarUrl = data.avatarUrl || "";
@@ -94,6 +95,7 @@ class User {
       console.log("User not found, creating new user...");
       const userData = {
         firebaseUid: firebaseUser.uid,
+        email: firebaseUser.email || "",
         name: firebaseUser.displayName || firebaseUser.email.split("@")[0],
         bio: "",
         avatarUrl: firebaseUser.photoURL || "",

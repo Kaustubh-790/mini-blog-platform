@@ -77,6 +77,7 @@ router.put("/me", authMiddleware, async (req, res) => {
       data: {
         id: updatedUser._id,
         firebaseUid: updatedUser.firebaseUid,
+        email: updatedUser.email,
         name: updatedUser.name,
         bio: updatedUser.bio,
         avatarUrl: updatedUser.avatarUrl,
@@ -312,6 +313,7 @@ router.get("/:id", optionalAuthMiddleware, async (req, res) => {
       success: true,
       data: {
         id: user._id,
+        email: user.email,
         name: user.name,
         bio: user.bio,
         avatarUrl: user.avatarUrl,

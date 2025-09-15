@@ -1,11 +1,12 @@
-import { Search, User, LogOut, PenTool, Settings } from "lucide-react";
+import { Search, PenTool } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
 import { useAuth } from "../contexts/AuthContext";
+import { UserDropdown } from "./UserDropdown";
 
 export function Navbar() {
-  const { user, userProfile, logout } = useAuth();
+  const { user } = useAuth();
 
   return (
     <header className="bg-background border-b border-border px-6 py-4">
@@ -42,26 +43,7 @@ export function Navbar() {
                   Write
                 </Link>
               </Button>
-              <Button variant="ghost" asChild>
-                <Link to="/profile" className="flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  {userProfile?.name || user.displayName || user.email}
-                </Link>
-              </Button>
-              <Button variant="ghost" asChild>
-                <Link to="/settings" className="flex items-center gap-2">
-                  <Settings className="w-4 h-4" />
-                  Settings
-                </Link>
-              </Button>
-              <Button
-                variant="outline"
-                onClick={logout}
-                className="flex items-center gap-2"
-              >
-                <LogOut className="w-4 h-4" />
-                Logout
-              </Button>
+              <UserDropdown />
             </>
           ) : (
             <>
