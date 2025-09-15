@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ImageWithFallback } from "../components/FallBackImage";
-import { MessageCircle, Share2, Bookmark, ArrowLeft, Heart, Edit, Trash2, X, Check } from "lucide-react";
+import {
+  MessageCircle,
+  Share2,
+  Bookmark,
+  ArrowLeft,
+  Heart,
+  Edit,
+  Trash2,
+  X,
+  Check,
+} from "lucide-react";
 import { Button } from "../components/ui/Button";
 import { Textarea } from "../components/ui/Textarea";
 import { useAuth } from "../contexts/AuthContext";
@@ -83,14 +93,14 @@ export function BlogDetail() {
 
     try {
       const token = await user.getIdToken();
-      const comment = comments.find(c => c._id === commentId);
-      
+      const comment = comments.find((c) => c._id === commentId);
+
       if (comment.isLikedByUser) {
         await api.unlikeComment(commentId, token);
       } else {
         await api.likeComment(commentId, token);
       }
-      
+
       fetchComments(); // Refresh comments to get updated like status
     } catch (error) {
       console.error("Error liking comment:", error);
@@ -108,7 +118,11 @@ export function BlogDetail() {
 
     try {
       const token = await user.getIdToken();
-      const response = await api.updateComment(commentId, editingCommentText, token);
+      const response = await api.updateComment(
+        commentId,
+        editingCommentText,
+        token
+      );
 
       if (response.success) {
         setEditingCommentId(null);
@@ -130,7 +144,7 @@ export function BlogDetail() {
 
   const handleDeleteComment = async (commentId) => {
     if (!user) return;
-    
+
     if (!confirm("Are you sure you want to delete this comment?")) return;
 
     try {
@@ -378,7 +392,7 @@ export function BlogDetail() {
                       {new Date(comment.createdAt).toLocaleDateString()}
                     </span>
                   </div>
-                  
+
                   {editingCommentId === comment._id ? (
                     <div className="space-y-2">
                       <Textarea
@@ -411,7 +425,7 @@ export function BlogDetail() {
                       <p className="text-gray-700 text-sm leading-relaxed mb-2">
                         {comment.body || comment.content}
                       </p>
-                      
+
                       <div className="flex items-center gap-3">
                         {/* Like Button */}
                         {user && (
@@ -431,26 +445,28 @@ export function BlogDetail() {
                             <span>{comment.likeCount || 0}</span>
                           </button>
                         )}
-                        
+
                         {/* Edit and Delete buttons - only for comment author */}
-                        {user && comment.author && user.uid === comment.authorUid && (
-                          <>
-                            <button
-                              onClick={() => handleEditComment(comment)}
-                              className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-500 transition-colors"
-                            >
-                              <Edit className="h-3 w-3" />
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDeleteComment(comment._id)}
-                              className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-500 transition-colors"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                              Delete
-                            </button>
-                          </>
-                        )}
+                        {user &&
+                          comment.author &&
+                          user.uid === comment.authorUid && (
+                            <>
+                              <button
+                                onClick={() => handleEditComment(comment)}
+                                className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-500 transition-colors"
+                              >
+                                <Edit className="h-3 w-3" />
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDeleteComment(comment._id)}
+                                className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-500 transition-colors"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                                Delete
+                              </button>
+                            </>
+                          )}
                       </div>
                     </>
                   )}

@@ -6,6 +6,18 @@ class User {
     this.name = data.name;
     this.bio = data.bio || "";
     this.avatarUrl = data.avatarUrl || "";
+    this.website = data.website || "";
+    this.location = data.location || "";
+    this.twitter = data.twitter || "";
+    this.linkedin = data.linkedin || "";
+    this.instagram = data.instagram || "";
+    this.settings = data.settings || {
+      preferences: {
+        theme: "light",
+        autoSave: true,
+        draftsRetention: 30,
+      },
+    };
     this.createdAt = data.createdAt || new Date();
     this.updatedAt = data.updatedAt || new Date();
   }
@@ -37,22 +49,34 @@ class User {
 
   static async findById(id) {
     const db = getDB();
-    return await db.collection("users").findOne({ _id: id });
+    const { ObjectId } = require("mongodb");
+    return await db.collection("users").findOne({ _id: new ObjectId(id) });
   }
 
   static async updateByFirebaseUid(firebaseUid, updateData) {
     const db = getDB();
     updateData.updatedAt = new Date();
 
-    const result = await db
-      .collection("users")
-      .findOneAndUpdate(
-        { firebaseUid },
-        { $set: updateData },
-        { returnDocument: "after" }
-      );
+    console.log("Updating user with firebaseUid:", firebaseUid);
+    console.log("Update data:", updateData);
 
-    return result.value;
+    // Use updateOne instead of findOneAndUpdate for better compatibility
+    const updateResult = await db
+      .collection("users")
+      .updateOne({ firebaseUid }, { $set: updateData });
+
+    console.log("Update result:", updateResult);
+
+    if (updateResult.modifiedCount === 0) {
+      console.log("No user was updated");
+      return null;
+    }
+
+    // Fetch the updated user
+    const updatedUser = await db.collection("users").findOne({ firebaseUid });
+    console.log("Updated user:", updatedUser);
+
+    return updatedUser;
   }
 
   static async deleteByFirebaseUid(firebaseUid) {
@@ -73,6 +97,11 @@ class User {
         name: firebaseUser.displayName || firebaseUser.email.split("@")[0],
         bio: "",
         avatarUrl: firebaseUser.photoURL || "",
+        website: "",
+        location: "",
+        twitter: "",
+        linkedin: "",
+        instagram: "",
       };
       console.log("Creating user with data:", userData);
       user = await this.create(userData);
@@ -82,6 +111,42 @@ class User {
     }
 
     return user;
+  }
+
+  // Update user settings
+  static async updateSettings(firebaseUid, settingsData) {
+    const db = getDB();
+    const updateData = {
+      settings: settingsData,
+      updatedAt: new Date(),
+    };
+
+    console.log("Updating settings for firebaseUid:", firebaseUid);
+    console.log("Settings update data:", updateData);
+
+    // Use updateOne instead of findOneAndUpdate for better compatibility
+    const updateResult = await db
+      .collection("users")
+      .updateOne({ firebaseUid }, { $set: updateData });
+
+    console.log("Settings update result:", updateResult);
+
+    if (updateResult.modifiedCount === 0) {
+      console.log("No user settings were updated");
+      return null;
+    }
+
+    // Fetch the updated user
+    const updatedUser = await db.collection("users").findOne({ firebaseUid });
+    console.log("Updated user with settings:", updatedUser);
+
+    return updatedUser;
+  }
+
+  // Get user settings
+  static async getSettings(firebaseUid) {
+    const user = await this.findByFirebaseUid(firebaseUid);
+    return user ? user.settings : null;
   }
 }
 

@@ -1,4 +1,4 @@
-import { Search, User, LogOut, PenTool } from "lucide-react";
+import { Search, User, LogOut, PenTool, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
@@ -46,6 +46,12 @@ export function Navbar() {
                 <Link to="/profile" className="flex items-center gap-2">
                   <User className="w-4 h-4" />
                   {userProfile?.name || user.displayName || user.email}
+                </Link>
+              </Button>
+              <Button variant="ghost" asChild>
+                <Link to="/settings" className="flex items-center gap-2">
+                  <Settings className="w-4 h-4" />
+                  Settings
                 </Link>
               </Button>
               <Button

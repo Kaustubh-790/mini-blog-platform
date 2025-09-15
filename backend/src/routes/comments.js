@@ -35,7 +35,9 @@ router.get("/posts/:postId", optionalAuthMiddleware, async (req, res) => {
     const commentsWithAuthors = await Promise.all(
       comments.map(async (comment) => {
         const author = await User.findByFirebaseUid(comment.authorUid);
-        const isLikedByUser = req.user ? await Comment.isLikedByUser(comment._id, req.user.uid) : false;
+        const isLikedByUser = req.user
+          ? await Comment.isLikedByUser(comment._id, req.user.uid)
+          : false;
         return {
           ...comment,
           author: author

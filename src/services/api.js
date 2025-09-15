@@ -175,6 +175,29 @@ class ApiService {
     );
   }
 
+  // Settings endpoints
+  async getUserSettings(token) {
+    return this.request("/users/me/settings", {
+      headers: this.getAuthHeaders(token),
+    });
+  }
+
+  async updateUserSettings(settingsData, token) {
+    return this.request("/users/me/settings", {
+      method: "PUT",
+      headers: this.getAuthHeaders(token),
+      body: JSON.stringify(settingsData),
+    });
+  }
+
+  // Account management
+  async deleteAccount(token) {
+    return this.request("/users/me", {
+      method: "DELETE",
+      headers: this.getAuthHeaders(token),
+    });
+  }
+
   // Upload endpoints
   async uploadImage(file, token) {
     const formData = new FormData();

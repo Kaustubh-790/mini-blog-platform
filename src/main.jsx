@@ -8,6 +8,8 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import { BlogDetail } from "./pages/BlogDetail";
 import CreateBlog from "./pages/CreateBlog";
+import Settings from "./pages/Settings";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import "./index.css";
 
@@ -19,7 +21,22 @@ const router = createBrowserRouter([
       { path: "/login", element: <Login /> },
       { path: "/signup", element: <Signup /> },
       { path: "/blog/:id", element: <BlogDetail /> },
-      { path: "/create", element: <CreateBlog /> },
+      {
+        path: "/create",
+        element: (
+          <ProtectedRoute>
+            <CreateBlog />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/settings",
+        element: (
+          <ProtectedRoute>
+            <Settings />
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
 ]);

@@ -171,6 +171,13 @@ class Post {
 
     return slug;
   }
+
+  // Delete all posts by author
+  static async deleteByAuthor(authorUid) {
+    const db = getDB();
+    const result = await db.collection("posts").deleteMany({ authorUid });
+    return result.deletedCount;
+  }
 }
 
 module.exports = Post;

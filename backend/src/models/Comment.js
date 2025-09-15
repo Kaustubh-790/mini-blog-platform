@@ -94,33 +94,29 @@ class Comment {
 
   static async likeComment(id, userUid) {
     const db = getDB();
-    const result = await db
-      .collection("comments")
-      .findOneAndUpdate(
-        { _id: new ObjectId(id), likes: { $ne: userUid } },
-        { 
-          $push: { likes: userUid },
-          $inc: { likeCount: 1 },
-          $set: { updatedAt: new Date() }
-        },
-        { returnDocument: "after" }
-      );
+    const result = await db.collection("comments").findOneAndUpdate(
+      { _id: new ObjectId(id), likes: { $ne: userUid } },
+      {
+        $push: { likes: userUid },
+        $inc: { likeCount: 1 },
+        $set: { updatedAt: new Date() },
+      },
+      { returnDocument: "after" }
+    );
     return result.value;
   }
 
   static async unlikeComment(id, userUid) {
     const db = getDB();
-    const result = await db
-      .collection("comments")
-      .findOneAndUpdate(
-        { _id: new ObjectId(id), likes: userUid },
-        { 
-          $pull: { likes: userUid },
-          $inc: { likeCount: -1 },
-          $set: { updatedAt: new Date() }
-        },
-        { returnDocument: "after" }
-      );
+    const result = await db.collection("comments").findOneAndUpdate(
+      { _id: new ObjectId(id), likes: userUid },
+      {
+        $pull: { likes: userUid },
+        $inc: { likeCount: -1 },
+        $set: { updatedAt: new Date() },
+      },
+      { returnDocument: "after" }
+    );
     return result.value;
   }
 
@@ -128,9 +124,16 @@ class Comment {
     const db = getDB();
     const comment = await db.collection("comments").findOne({
       _id: new ObjectId(id),
-      likes: userUid
+      likes: userUid,
     });
     return !!comment;
+  }
+
+  // Delete all comments by author
+  static async deleteByAuthor(authorUid) {
+    const db = getDB();
+    const result = await db.collection("comments").deleteMany({ authorUid });
+    return result.deletedCount;
   }
 }
 
