@@ -280,6 +280,20 @@ export function BlogDetail() {
               <MessageCircle className="w-4 h-4" />
               <span>{post.commentCount || 0}</span>
             </div>
+
+            {/* Edit button - only for post author */}
+            {user && user.uid === post.authorUid && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(`/edit/${post._id}`)}
+                className="flex items-center gap-2"
+              >
+                <Edit className="w-4 h-4" />
+                Edit
+              </Button>
+            )}
+
             <Button variant="ghost" size="sm">
               <Share2 className="w-4 h-4" />
             </Button>

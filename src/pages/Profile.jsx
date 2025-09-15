@@ -192,7 +192,7 @@ const Profile = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => navigate(`/create?edit=${post.id}`)}
+                      onClick={() => navigate(`/edit/${post.id}`)}
                       className="p-2"
                     >
                       <Edit className="w-4 h-4" />

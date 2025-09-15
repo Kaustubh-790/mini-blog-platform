@@ -1,16 +1,22 @@
-import React, { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Save, Upload, Send, Eye, EyeOff } from "lucide-react";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Textarea } from "../components/ui/Textarea";
-import RichTextEditor from "../components/RichTextEditor";
+import TextEditor from "../components/TextEditor";
 import { useAuth } from "../contexts/AuthContext";
+import api from "../services/api";
 
 export default function CreateBlog() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const fileInputRef = useRef(null);
+
+  const editId = id || searchParams.get("edit");
+  const isEditMode = Boolean(editId);
 
   const [blogData, setBlogData] = useState({
     title: "",
@@ -27,7 +33,9 @@ export default function CreateBlog() {
   const [previewMode, setPreviewMode] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
-  const [showPreview, setShowPreview] = useState(false);
+  const [showPreview, setShowPreview] = useState(true);
+  const [loading, setLoading] = useState(isEditMode);
+  const [error, setError] = useState(null);
 
   const categories = [
     "General",
@@ -42,6 +50,46 @@ export default function CreateBlog() {
     "Sports",
   ];
 
+  // Fetch blog data in edit mode
+  useEffect(() => {
+    if (isEditMode && editId) {
+      fetchBlogData();
+    }
+  }, [isEditMode, editId]);
+
+  const fetchBlogData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.getPost(editId);
+
+      if (response.success) {
+        const post = response.data;
+        const newBlogData = {
+          title: post.title || "",
+          excerpt: post.excerpt || "",
+          content: post.content || post.bodyHtml || "",
+          tags: post.tags ? post.tags.join(", ") : "",
+          category: post.category || "General",
+          coverImage: null,
+          coverImageUrl: post.featuredImage || null,
+          coverImageAlt: post.featuredImageAlt || "",
+          status: post.status || "draft",
+        };
+        setBlogData(newBlogData);
+
+        if (post.featuredImage) {
+          setImagePreview(post.featuredImage);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching blog data:", error);
+      setError("Failed to load blog data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleInputChange = (field, value) => {
     setBlogData((prev) => ({
       ...prev,
@@ -55,14 +103,12 @@ export default function CreateBlog() {
       try {
         setIsUploading(true);
 
-        // Create preview URL immediately
         const reader = new FileReader();
         reader.onload = (e) => {
           setImagePreview(e.target.result);
         };
         reader.readAsDataURL(file);
 
-        // Upload image to server
         const formData = new FormData();
         formData.append("image", file);
 
@@ -86,18 +132,14 @@ export default function CreateBlog() {
           throw new Error(result.error || "Failed to upload image");
         }
 
-        // Update blog data with uploaded image URL
         setBlogData((prev) => ({
           ...prev,
           coverImage: file,
           coverImageUrl: result.data.url,
         }));
-
-        console.log("Image uploaded successfully:", result.data);
       } catch (error) {
         console.error("Error uploading image:", error);
         alert(`Error uploading image: ${error.message}`);
-        // Reset file input
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
@@ -116,7 +158,6 @@ export default function CreateBlog() {
         return;
       }
 
-      // Prepare data for API
       const postData = {
         title: blogData.title,
         bodyHtml: blogData.content,
@@ -133,35 +174,28 @@ export default function CreateBlog() {
         featuredImageAlt: blogData.coverImageAlt,
       };
 
-      // Get auth token
       const token = await user.getIdToken();
 
-      // Call API to create post
-      const response = await fetch(
-        `${
-          import.meta.env.VITE_BACKEND_API_URL || "http://localhost:5000/api"
-        }/posts`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(postData),
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || "Failed to save blog post");
+      let response;
+      if (isEditMode) {
+        response = await api.updatePost(editId, postData, token);
+      } else {
+        response = await api.createPost(postData, token);
       }
 
       if (publishStatus === "published") {
-        alert("Blog published successfully!");
-        navigate("/");
+        alert(
+          isEditMode
+            ? "Blog updated and published successfully!"
+            : "Blog published successfully!"
+        );
+        navigate(`/blog/${isEditMode ? id : response.data.id}`);
       } else {
-        alert("Draft saved successfully!");
+        alert(
+          isEditMode
+            ? "Draft updated successfully!"
+            : "Draft saved successfully!"
+        );
       }
     } catch (error) {
       console.error("Error saving blog:", error);
@@ -210,21 +244,46 @@ export default function CreateBlog() {
     );
   };
 
+  if (loading) {
+    return (
+      <div className="max-w-full mx-auto px-6 py-8">
+        <div className="flex items-center justify-center min-h-96">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading blog data...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-full mx-auto px-6 py-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Error</h1>
+          <p className="text-red-600 mb-4">{error}</p>
+          <Button onClick={() => navigate("/")}>Back to Home</Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-full mx-auto px-6 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Create New Blog Post
+          {isEditMode ? "Edit Blog Post" : "Create New Blog Post"}
         </h1>
         <p className="text-gray-600">
-          Share your thoughts and stories with the community
+          {isEditMode
+            ? "Update your blog post"
+            : "Share your thoughts and stories with the community"}
         </p>
       </div>
 
       <div className="flex gap-8 h-screen">
-        {/* Left Side - Editor */}
         <div className="w-1/2 space-y-6 overflow-y-auto">
-          {/* Title */}
           <div>
             <label className="block text-sm font-medium mb-2">Title</label>
             <Input
@@ -236,7 +295,6 @@ export default function CreateBlog() {
             />
           </div>
 
-          {/* Tags */}
           <div>
             <label className="block text-sm font-medium mb-2">Tags</label>
             <Input
@@ -247,10 +305,10 @@ export default function CreateBlog() {
             />
           </div>
 
-          {/* Content Editor */}
           <div className="flex-1">
             <label className="block text-sm font-medium mb-2">Content</label>
-            <RichTextEditor
+            <TextEditor
+              key={isEditMode ? `edit-${editId}` : "create"}
               value={blogData.content}
               onChange={(content) => handleInputChange("content", content)}
               placeholder="Start writing your masterpiece..."
@@ -342,7 +400,6 @@ export default function CreateBlog() {
             </div>
           </div>
 
-          {/* Image Alt Text */}
           {blogData.coverImageUrl && (
             <div>
               <label className="block text-sm font-medium mb-2">
@@ -383,37 +440,13 @@ export default function CreateBlog() {
 
         <div className="w-1/2 border-l pl-8">
           <div className="sticky top-0 bg-white pb-4 mb-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold mb-2">Live Preview</h2>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowPreview(!showPreview)}
-                className="flex items-center gap-2"
-              >
-                {showPreview ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-                {showPreview ? "Hide Preview" : "Show Preview"}
-              </Button>
-            </div>
+            <h2 className="text-xl font-semibold mb-2">Live Preview</h2>
             <p className="text-sm text-gray-600">
               Your content will be rendered here as you type.
             </p>
           </div>
 
-          <div className="overflow-y-auto h-full">
-            {showPreview ? (
-              renderPreview()
-            ) : (
-              <div className="text-center text-gray-500 py-20">
-                <Eye className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Click "Show Preview" to see your content</p>
-              </div>
-            )}
-          </div>
+          <div className="overflow-y-auto h-full">{renderPreview()}</div>
         </div>
       </div>
     </div>

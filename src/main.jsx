@@ -31,6 +31,14 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "/edit/:id",
+        element: (
+          <ProtectedRoute>
+            <CreateBlog />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: "/profile",
         element: (
           <ProtectedRoute>

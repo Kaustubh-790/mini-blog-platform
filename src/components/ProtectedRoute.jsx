@@ -5,6 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
   const location = useLocation();
+  console.log("user access token", user.accessToken);
 
   if (!user) {
     // Redirect to login page with return url
