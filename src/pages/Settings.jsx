@@ -197,14 +197,12 @@ const Settings = () => {
       setSaveLoading(true);
       const token = await user.getIdToken();
 
-      // Only send fields that have values or have been changed
       const updateData = {
         name: profileData.name,
         bio: profileData.bio,
         avatarUrl: profileData.avatarUrl,
       };
 
-      // Only include social URLs if they have values
       if (profileData.twitter && profileData.twitter.trim() !== "") {
         updateData.twitter = profileData.twitter;
       }

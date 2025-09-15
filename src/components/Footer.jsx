@@ -5,7 +5,6 @@ export function Footer() {
     <footer className="bg-gray-50 border-t border-gray-200 mt-16">
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Company Info */}
           <div className="col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center">
@@ -21,7 +20,6 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Quick Links */}
           <div>
             <h3 className="font-semibold text-gray-900 mb-4">Quick Links</h3>
             <ul className="space-y-2 text-sm">
@@ -57,7 +55,6 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Categories */}
           <div>
             <h3 className="font-semibold text-gray-900 mb-4">Categories</h3>
             <ul className="space-y-2 text-sm">
@@ -96,7 +93,6 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Support */}
           <div>
             <h3 className="font-semibold text-gray-900 mb-4">Support</h3>
             <ul className="space-y-2 text-sm">
@@ -132,7 +128,7 @@ export function Footer() {
 
         <div className="border-t border-gray-200 mt-8 pt-8 text-center">
           <p className="text-gray-600 text-sm">
-            © 2024 StoryStream. All rights reserved.
+            © 2025 ByteBites. All rights reserved.
           </p>
         </div>
       </div>

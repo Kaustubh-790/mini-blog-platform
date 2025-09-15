@@ -35,7 +35,6 @@ const Signup = () => {
     setLoading(true);
     setError("");
 
-    // Validation
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       setLoading(false);
@@ -55,7 +54,6 @@ const Signup = () => {
         formData.password
       );
 
-      // Update user profile with display name
       await updateProfile(user, {
         displayName: `${formData.firstName} ${formData.lastName}`,
       });
@@ -113,7 +111,7 @@ const Signup = () => {
             </Link>
           </p>
         </div>
-        {/* OAuth Signup Buttons */}
+
         <div className="mt-8 space-y-3">
           <Button
             type="button"
@@ -155,7 +153,6 @@ const Signup = () => {
           </Button>
         </div>
 
-        {/* Divider */}
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-border" />

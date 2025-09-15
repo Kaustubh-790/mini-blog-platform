@@ -22,11 +22,9 @@ export function UserDropdown() {
   }, []);
 
   useEffect(() => {
-    // Check for saved theme preference or default to light
     const savedTheme = localStorage.getItem("theme") || "light";
     setTheme(savedTheme);
 
-    // Apply theme to document
     if (savedTheme === "dark") {
       document.documentElement.classList.add("dark");
     } else {
@@ -79,7 +77,6 @@ export function UserDropdown() {
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-          {/* User Info Header */}
           <div className="px-4 py-3 border-b border-gray-100">
             <div className="flex items-center gap-3">
               <ImageWithFallback
@@ -96,7 +93,6 @@ export function UserDropdown() {
             </div>
           </div>
 
-          {/* Menu Items */}
           <div className="py-2">
             <Link
               to="/profile"

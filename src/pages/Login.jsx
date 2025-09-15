@@ -74,7 +74,7 @@ const Login = () => {
             </Link>
           </p>
         </div>
-        {/* OAuth Login Buttons */}
+
         <div className="mt-8 space-y-3">
           <Button
             type="button"
@@ -116,7 +116,6 @@ const Login = () => {
           </Button>
         </div>
 
-        {/* Divider */}
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-border" />

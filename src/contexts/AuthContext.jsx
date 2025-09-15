@@ -22,17 +22,14 @@ export const AuthProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
-          // Get Firebase ID token
           const token = await firebaseUser.getIdToken();
 
-          // Sync user with backend
           const profileData = await apiService.syncUser(token);
 
           setUser(firebaseUser);
           setUserProfile(profileData.data);
         } catch (error) {
           console.error("Error syncing user with backend:", error);
-          // Still set the Firebase user even if backend sync fails
           setUser(firebaseUser);
           setUserProfile(null);
         }

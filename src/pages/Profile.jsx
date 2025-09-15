@@ -75,7 +75,6 @@ const Profile = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-8">
-      {/* Profile Header */}
       <div className="text-center mb-12">
         <div className="mb-6">
           <ImageWithFallback
@@ -113,7 +112,6 @@ const Profile = () => {
         </div>
       )}
 
-      {/* Tabs */}
       <div className="mb-8">
         <div className="border-b border-gray-200">
           <nav className="flex space-x-8">
@@ -141,7 +139,6 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Tab Content */}
       {activeTab === "posts" && (
         <div className="space-y-6">
           {userPosts.length === 0 ? (

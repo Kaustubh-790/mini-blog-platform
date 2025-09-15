@@ -77,8 +77,8 @@ export function BlogDetail() {
 
       if (response.success) {
         setNewComment("");
-        fetchComments(); // Refresh comments list
-        fetchPost(); // Refresh post to update comment count
+        fetchComments();
+        fetchPost();
       } else {
         throw new Error(response.error || "Failed to add comment");
       }
@@ -101,7 +101,7 @@ export function BlogDetail() {
         await api.likeComment(commentId, token);
       }
 
-      fetchComments(); // Refresh comments to get updated like status
+      fetchComments();
     } catch (error) {
       console.error("Error liking comment:", error);
       alert("Failed to update like. Please try again.");
@@ -127,7 +127,7 @@ export function BlogDetail() {
       if (response.success) {
         setEditingCommentId(null);
         setEditingCommentText("");
-        fetchComments(); // Refresh comments list
+        fetchComments();
       } else {
         throw new Error(response.error || "Failed to update comment");
       }
@@ -152,8 +152,8 @@ export function BlogDetail() {
       const response = await api.deleteComment(commentId, token);
 
       if (response.success) {
-        fetchComments(); // Refresh comments list
-        fetchPost(); // Refresh post to update comment count
+        fetchComments();
+        fetchPost();
       } else {
         throw new Error(response.error || "Failed to delete comment");
       }
@@ -281,7 +281,6 @@ export function BlogDetail() {
               <span>{post.commentCount || 0}</span>
             </div>
 
-            {/* Edit button - only for post author */}
             {user && user.uid === post.authorUid && (
               <Button
                 variant="ghost"
@@ -303,7 +302,6 @@ export function BlogDetail() {
           </div>
         </div>
 
-        {/* Tags */}
         {post.tags && post.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-6">
             {post.tags.map((tag, index) => (
@@ -318,7 +316,6 @@ export function BlogDetail() {
         )}
       </header>
 
-      {/* Article Content */}
       <div
         className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600 prose-strong:text-gray-900 prose-code:text-gray-800 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-100 prose-blockquote:border-l-4 prose-blockquote:border-gray-300 prose-blockquote:pl-4 prose-blockquote:italic prose-ul:text-gray-700 prose-ol:text-gray-700 prose-li:text-gray-700"
         dangerouslySetInnerHTML={{
@@ -329,13 +326,11 @@ export function BlogDetail() {
         }}
       />
 
-      {/* Comments Section */}
       <section className="mt-12 border-t border-gray-200 pt-8">
         <h3 className="text-2xl font-semibold text-gray-900 mb-6">
           Comments ({post.commentCount || 0})
         </h3>
 
-        {/* Add Comment Form */}
         {user && (
           <div className="mb-8">
             <form onSubmit={handleCommentSubmit}>
@@ -384,7 +379,6 @@ export function BlogDetail() {
           </div>
         )}
 
-        {/* Comments List */}
         <div className="space-y-6">
           {comments && comments.length > 0 ? (
             comments.map((comment) => (
@@ -441,7 +435,6 @@ export function BlogDetail() {
                       </p>
 
                       <div className="flex items-center gap-3">
-                        {/* Like Button */}
                         {user && (
                           <button
                             onClick={() => handleLikeComment(comment._id)}
@@ -460,7 +453,6 @@ export function BlogDetail() {
                           </button>
                         )}
 
-                        {/* Edit and Delete buttons - only for comment author */}
                         {user &&
                           comment.author &&
                           user.uid === comment.authorUid && (

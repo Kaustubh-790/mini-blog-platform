@@ -50,7 +50,6 @@ export default function CreateBlog() {
     "Sports",
   ];
 
-  // Fetch blog data in edit mode
   useEffect(() => {
     if (isEditMode && editId) {
       fetchBlogData();
@@ -114,9 +113,7 @@ export default function CreateBlog() {
 
         const token = await user.getIdToken();
         const response = await fetch(
-          `${
-            import.meta.env.VITE_BACKEND_API_URL || "http://localhost:5000/api"
-          }/uploads`,
+          `${import.meta.env.VITE_BACKEND_API_URL}/uploads`,
           {
             method: "POST",
             headers: {
