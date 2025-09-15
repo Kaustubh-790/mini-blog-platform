@@ -7,15 +7,38 @@ let db;
 const connectDB = async () => {
   try {
     const mongoUri = process.env.MONGODB_URI;
+    console.log("MongoDB URI:", mongoUri);
 
     client = new MongoClient(mongoUri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+      // SSL/TLS configuration
+      ssl: true,
+      tlsAllowInvalidCertificates: false,
+      tlsAllowInvalidHostnames: false,
+
+      // Connection timeout and retry settings
+      serverSelectionTimeoutMS: 30000,
+      connectTimeoutMS: 30000,
+      socketTimeoutMS: 30000, // 30 seconds
+
+      // Retry configuration
+      retryWrites: true,
+      retryReads: true,
+
+      // Connection pool settings
+      maxPoolSize: 10,
+      minPoolSize: 5,
+
+      // Heartbeat frequency
+      heartbeatFrequencyMS: 10000,
     });
 
+    console.log("Attempting to connect to MongoDB...");
     await client.connect();
-    db = client.db("blogPlatform");
 
+    // Test the connection
+    await client.db("admin").command({ ping: 1 });
+
+    db = client.db();
     console.log("Connected to MongoDB - blogPlatform database");
 
     await createIndexes();
@@ -23,7 +46,17 @@ const connectDB = async () => {
     return db;
   } catch (error) {
     console.error("MongoDB connection error:", error);
-    process.exit(1);
+
+    // Don't exit immediately, allow for retry
+    if (client) {
+      try {
+        await client.close();
+      } catch (closeError) {
+        console.error("Error closing client:", closeError);
+      }
+    }
+
+    throw error;
   }
 };
 
@@ -64,8 +97,28 @@ const closeDB = async () => {
   }
 };
 
+// Add connection retry logic
+const connectWithRetry = async (maxRetries = 3, delay = 5000) => {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await connectDB();
+    } catch (error) {
+      console.error(`Connection attempt ${i + 1} failed:`, error.message);
+
+      if (i === maxRetries - 1) {
+        console.error("Max retries reached. Exiting...");
+        process.exit(1);
+      }
+
+      console.log(`Retrying in ${delay / 1000} seconds...`);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+};
+
 module.exports = {
   connectDB,
+  connectWithRetry,
   getDB,
   closeDB,
 };

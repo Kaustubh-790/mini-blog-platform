@@ -1,11 +1,18 @@
-const { connectDB } = require("./config/database");
+const { connectWithRetry } = require("./config/database");
 const { initializeFirebase } = require("./config/firebase");
 
 // Initialize Firebase Admin SDK
 initializeFirebase();
 
 // Connect to MongoDB
-connectDB();
+const startApp = async () => {
+  try {
+    await connectWithRetry();
+    require("./server");
+  } catch (error) {
+    console.error("Failed to start application:", error);
+    process.exit(1);
+  }
+};
 
-// Import and start the server
-require("./server");
+startApp();
