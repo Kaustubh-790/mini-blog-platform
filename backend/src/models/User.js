@@ -27,24 +27,16 @@ class User {
     const db = getDB();
     const user = new User(userData);
 
-    console.log("Attempting to insert user into database:", user);
     const result = await db.collection("users").insertOne(user);
-    console.log("Insert result:", result);
 
     const createdUser = { ...user, _id: result.insertedId };
-    console.log("Created user object:", createdUser);
 
     return createdUser;
   }
 
   static async findByFirebaseUid(firebaseUid) {
     const db = getDB();
-    console.log("Searching for user with firebaseUid:", firebaseUid);
     const user = await db.collection("users").findOne({ firebaseUid });
-    console.log(
-      "Search result:",
-      user ? `Found user with ID: ${user._id}` : "No user found"
-    );
     return user;
   }
 
@@ -58,24 +50,15 @@ class User {
     const db = getDB();
     updateData.updatedAt = new Date();
 
-    console.log("Updating user with firebaseUid:", firebaseUid);
-    console.log("Update data:", updateData);
-
-    // Use updateOne instead of findOneAndUpdate for better compatibility
     const updateResult = await db
       .collection("users")
       .updateOne({ firebaseUid }, { $set: updateData });
 
-    console.log("Update result:", updateResult);
-
     if (updateResult.modifiedCount === 0) {
-      console.log("No user was updated");
       return null;
     }
 
-    // Fetch the updated user
     const updatedUser = await db.collection("users").findOne({ firebaseUid });
-    console.log("Updated user:", updatedUser);
 
     return updatedUser;
   }
@@ -86,13 +69,10 @@ class User {
     return result.deletedCount > 0;
   }
 
-  // Get or create user profile (useful for first-time login)
   static async getOrCreate(firebaseUser) {
-    console.log("Looking for existing user with UID:", firebaseUser.uid);
     let user = await this.findByFirebaseUid(firebaseUser.uid);
 
     if (!user) {
-      console.log("User not found, creating new user...");
       const userData = {
         firebaseUid: firebaseUser.uid,
         email: firebaseUser.email || "",
@@ -105,17 +85,13 @@ class User {
         linkedin: "",
         instagram: "",
       };
-      console.log("Creating user with data:", userData);
       user = await this.create(userData);
-      console.log("New user created with ID:", user._id);
     } else {
-      console.log("Existing user found:", user._id);
     }
 
     return user;
   }
 
-  // Update user settings
   static async updateSettings(firebaseUid, settingsData) {
     const db = getDB();
     const updateData = {
@@ -123,29 +99,19 @@ class User {
       updatedAt: new Date(),
     };
 
-    console.log("Updating settings for firebaseUid:", firebaseUid);
-    console.log("Settings update data:", updateData);
-
-    // Use updateOne instead of findOneAndUpdate for better compatibility
     const updateResult = await db
       .collection("users")
       .updateOne({ firebaseUid }, { $set: updateData });
 
-    console.log("Settings update result:", updateResult);
-
     if (updateResult.modifiedCount === 0) {
-      console.log("No user settings were updated");
       return null;
     }
 
-    // Fetch the updated user
     const updatedUser = await db.collection("users").findOne({ firebaseUid });
-    console.log("Updated user with settings:", updatedUser);
 
     return updatedUser;
   }
 
-  // Get user settings
   static async getSettings(firebaseUid) {
     const user = await this.findByFirebaseUid(firebaseUid);
     return user ? user.settings : null;

@@ -9,7 +9,7 @@ const Comment = require("../models/Comment");
 
 const router = express.Router();
 
-// PUT /api/users/me - Update current user profile
+// PUT /api/users/me
 router.put("/me", authMiddleware, async (req, res) => {
   try {
     const { uid } = req.user;
@@ -98,7 +98,7 @@ router.put("/me", authMiddleware, async (req, res) => {
   }
 });
 
-// GET /api/users/me/posts - Get current user's posts (including drafts)
+// GET /api/users/me/posts
 router.get("/me/posts", authMiddleware, async (req, res) => {
   try {
     const { uid } = req.user;
@@ -129,7 +129,7 @@ router.get("/me/posts", authMiddleware, async (req, res) => {
   }
 });
 
-// GET /api/users/me/comments - Get current user's comments
+// GET /api/users/me/comments
 router.get("/me/comments", authMiddleware, async (req, res) => {
   try {
     const { uid } = req.user;
@@ -142,7 +142,6 @@ router.get("/me/comments", authMiddleware, async (req, res) => {
 
     const comments = await Comment.findByAuthor(uid, options);
 
-    // Get post information for each comment
     const commentsWithPosts = await Promise.all(
       comments.map(async (comment) => {
         const post = await Post.findById(comment.postId);
@@ -178,17 +177,15 @@ router.get("/me/comments", authMiddleware, async (req, res) => {
   }
 });
 
-// GET /api/users/me/settings - Get current user's settings
+// GET /api/users/me/settings
 router.get("/me/settings", authMiddleware, async (req, res) => {
   try {
     const { uid } = req.user;
 
-    // First ensure user exists (get or create)
     const { getUserByUid } = require("../config/firebase");
     const firebaseUser = await getUserByUid(uid);
     const user = await User.getOrCreate(firebaseUser);
 
-    // Return user settings or default settings if none exist
     const settings = user.settings || {
       preferences: {
         theme: "light",
@@ -211,13 +208,12 @@ router.get("/me/settings", authMiddleware, async (req, res) => {
   }
 });
 
-// PUT /api/users/me/settings - Update current user's settings
+// PUT /api/users/me/settings
 router.put("/me/settings", authMiddleware, async (req, res) => {
   try {
     const { uid } = req.user;
     const { preferences } = req.body;
 
-    // First ensure user exists (get or create)
     const { getUserByUid } = require("../config/firebase");
     const firebaseUser = await getUserByUid(uid);
     const user = await User.getOrCreate(firebaseUser);
@@ -258,18 +254,15 @@ router.put("/me/settings", authMiddleware, async (req, res) => {
   }
 });
 
-// DELETE /api/users/me - Delete current user account
+// DELETE /api/users/me
 router.delete("/me", authMiddleware, async (req, res) => {
   try {
     const { uid } = req.user;
 
-    // Delete user's posts
     await Post.deleteByAuthor(uid);
 
-    // Delete user's comments
     await Comment.deleteByAuthor(uid);
 
-    // Delete user profile
     const deleted = await User.deleteByFirebaseUid(uid);
 
     if (!deleted) {
@@ -293,7 +286,7 @@ router.delete("/me", authMiddleware, async (req, res) => {
   }
 });
 
-// GET /api/users/:id - Get user profile by ID (must be last to avoid conflicts)
+// GET /api/users/:id
 router.get("/:id", optionalAuthMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
@@ -306,7 +299,6 @@ router.get("/:id", optionalAuthMiddleware, async (req, res) => {
       });
     }
 
-    // Get user's published posts
     const posts = await Post.findByAuthor(user.firebaseUid, false);
 
     res.json({

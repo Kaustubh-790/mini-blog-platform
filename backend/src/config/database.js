@@ -7,39 +7,32 @@ let db;
 const connectDB = async () => {
   try {
     const mongoUri = process.env.MONGODB_URI;
-    console.log("MongoDB URI:", mongoUri);
 
     client = new MongoClient(mongoUri, {
-      // SSL/TLS configuration
       ssl: true,
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
 
-      // Connection timeout and retry settings
       serverSelectionTimeoutMS: 30000,
       connectTimeoutMS: 30000,
-      socketTimeoutMS: 30000, // 30 seconds
+      socketTimeoutMS: 30000,
 
-      // Retry configuration
       retryWrites: true,
       retryReads: true,
 
-      // Connection pool settings
       maxPoolSize: 10,
       minPoolSize: 5,
 
-      // Heartbeat frequency
       heartbeatFrequencyMS: 10000,
     });
 
     console.log("Attempting to connect to MongoDB...");
     await client.connect();
 
-    // Test the connection
     await client.db("admin").command({ ping: 1 });
 
     db = client.db();
-    console.log("Connected to MongoDB - blogPlatform database");
+    console.log("Connected to MongoDB");
 
     await createIndexes();
 
@@ -47,7 +40,6 @@ const connectDB = async () => {
   } catch (error) {
     console.error("MongoDB connection error:", error);
 
-    // Don't exit immediately, allow for retry
     if (client) {
       try {
         await client.close();
@@ -97,7 +89,6 @@ const closeDB = async () => {
   }
 };
 
-// Add connection retry logic
 const connectWithRetry = async (maxRetries = 3, delay = 5000) => {
   for (let i = 0; i < maxRetries; i++) {
     try {

@@ -20,10 +20,8 @@ const authMiddleware = async (req, res, next) => {
       });
     }
 
-    // Verify the Firebase ID token
     const decodedToken = await verifyIdToken(token);
 
-    // Add user info to request object
     req.user = {
       uid: decodedToken.uid,
       email: decodedToken.email,
@@ -42,7 +40,6 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-// Optional auth middleware - doesn't fail if no token
 const optionalAuthMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -64,7 +61,6 @@ const optionalAuthMiddleware = async (req, res, next) => {
 
     next();
   } catch (error) {
-    // Continue without authentication if token is invalid
     console.log("Optional auth failed:", error.message);
     next();
   }

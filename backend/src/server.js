@@ -22,7 +22,7 @@ const limiter = rateLimit({
   message: "Too many requests from this IP, please try again later.",
 });
 
-// Configure CORS first, before other middleware
+// CORS Config
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
@@ -45,7 +45,6 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(
   "/uploads",
   (req, res, next) => {
-    // Set CORS headers for all requests
     res.header("Access-Control-Allow-Origin", "*");
     res.header(
       "Access-Control-Allow-Methods",
@@ -58,7 +57,6 @@ app.use(
     res.header("Access-Control-Allow-Credentials", "false");
     res.header("Cross-Origin-Resource-Policy", "cross-origin");
 
-    // Handle preflight requests
     if (req.method === "OPTIONS") {
       res.sendStatus(200);
       return;

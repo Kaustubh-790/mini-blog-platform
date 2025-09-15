@@ -129,7 +129,6 @@ class Comment {
     return !!comment;
   }
 
-  // Delete all comments by author
   static async deleteByAuthor(authorUid) {
     const db = getDB();
     const result = await db.collection("comments").deleteMany({ authorUid });

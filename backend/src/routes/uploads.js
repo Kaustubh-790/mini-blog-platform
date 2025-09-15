@@ -7,12 +7,10 @@ const { authMiddleware } = require("../middleware/auth");
 
 const router = express.Router();
 
-// Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = path.join(__dirname, "../../uploads");
 
-    // Create uploads directory if it doesn't exist
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
@@ -20,14 +18,12 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    // Generate unique filename
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     const ext = path.extname(file.originalname);
     cb(null, file.fieldname + "-" + uniqueSuffix + ext);
   },
 });
 
-// File filter for images only
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|gif|webp/;
   const extname = allowedTypes.test(
@@ -45,12 +41,12 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: 5 * 1024 * 1024,
   },
   fileFilter: fileFilter,
 });
 
-// POST /api/uploads - Upload and optimize image file
+// POST /api/uploads
 router.post("/", authMiddleware, upload.single("image"), async (req, res) => {
   try {
     if (!req.file) {
@@ -68,7 +64,6 @@ router.post("/", authMiddleware, upload.single("image"), async (req, res) => {
       console.log("Original path:", originalPath);
       console.log("Optimized path:", optimizedPath);
 
-      // Optimize image using Sharp
       await sharp(originalPath)
         .resize(1200, 800, {
           fit: "inside",
@@ -79,22 +74,18 @@ router.post("/", authMiddleware, upload.single("image"), async (req, res) => {
 
       console.log("Image optimization completed successfully");
 
-      // Remove original file
       fs.unlinkSync(originalPath);
       console.log("Original file removed");
 
-      // Update filename to optimized version
       const optimizedFilename = req.file.filename.replace(
         /\.[^/.]+$/,
         "_optimized.webp"
       );
 
-      // Generate URL for the optimized file
       const fileUrl = `${req.protocol}://${req.get(
         "host"
       )}/uploads/${optimizedFilename}`;
 
-      // Get optimized file stats
       const optimizedStats = fs.statSync(optimizedPath);
 
       console.log("Optimized filename:", optimizedFilename);
@@ -115,7 +106,6 @@ router.post("/", authMiddleware, upload.single("image"), async (req, res) => {
     } catch (optimizationError) {
       console.error("Image optimization error:", optimizationError);
 
-      // If optimization fails, use original file
       const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${
         req.file.filename
       }`;
@@ -146,7 +136,7 @@ router.post("/", authMiddleware, upload.single("image"), async (req, res) => {
   }
 });
 
-// POST /api/uploads/multiple - Upload multiple image files
+// POST /api/uploads/multiple
 router.post(
   "/multiple",
   authMiddleware,

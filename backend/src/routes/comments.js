@@ -9,13 +9,12 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-// GET /api/comments/posts/:postId - Get comments for a post
+// GET /api/comments/posts/:postId
 router.get("/posts/:postId", optionalAuthMiddleware, async (req, res) => {
   try {
     const { postId } = req.params;
     const { page = 1, limit = 20 } = req.query;
 
-    // Check if post exists
     const post = await Post.findById(postId);
     if (!post) {
       return res.status(404).json({
@@ -31,7 +30,6 @@ router.get("/posts/:postId", optionalAuthMiddleware, async (req, res) => {
 
     const comments = await Comment.findByPostId(postId, options);
 
-    // Get author information for each comment
     const commentsWithAuthors = await Promise.all(
       comments.map(async (comment) => {
         const author = await User.findByFirebaseUid(comment.authorUid);
@@ -71,14 +69,13 @@ router.get("/posts/:postId", optionalAuthMiddleware, async (req, res) => {
   }
 });
 
-// POST /api/comments/posts/:postId - Add comment to a post
+// POST /api/comments/posts/:postId
 router.post("/posts/:postId", authMiddleware, async (req, res) => {
   try {
     const { postId } = req.params;
     const { body } = req.body;
     const { uid } = req.user;
 
-    // Validation
     if (!body || body.trim().length === 0) {
       return res.status(400).json({
         success: false,
@@ -86,7 +83,6 @@ router.post("/posts/:postId", authMiddleware, async (req, res) => {
       });
     }
 
-    // Check if post exists
     const post = await Post.findById(postId);
     if (!post) {
       return res.status(404).json({
@@ -103,7 +99,6 @@ router.post("/posts/:postId", authMiddleware, async (req, res) => {
 
     const comment = await Comment.create(commentData);
 
-    // Get author information
     const author = await User.findByFirebaseUid(uid);
     const commentWithAuthor = {
       ...comment,
@@ -130,14 +125,13 @@ router.post("/posts/:postId", authMiddleware, async (req, res) => {
   }
 });
 
-// PUT /api/comments/:id - Update comment
+// PUT /api/comments/:id
 router.put("/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const { body } = req.body;
     const { uid } = req.user;
 
-    // Validation
     if (!body || body.trim().length === 0) {
       return res.status(400).json({
         success: false,
@@ -166,7 +160,6 @@ router.put("/:id", authMiddleware, async (req, res) => {
 
     const updatedComment = await Comment.updateById(id, updateData, uid);
 
-    // Get author information
     const author = await User.findByFirebaseUid(uid);
     const commentWithAuthor = {
       ...updatedComment,
@@ -193,7 +186,7 @@ router.put("/:id", authMiddleware, async (req, res) => {
   }
 });
 
-// DELETE /api/comments/:id - Delete comment
+// DELETE /api/comments/:id
 router.delete("/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
@@ -237,7 +230,7 @@ router.delete("/:id", authMiddleware, async (req, res) => {
   }
 });
 
-// POST /api/comments/:id/like - Like a comment
+// POST /api/comments/:id/like
 router.post("/:id/like", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
@@ -260,7 +253,6 @@ router.post("/:id/like", authMiddleware, async (req, res) => {
         message: "Comment liked successfully",
       });
     } else {
-      // Comment was already liked by this user
       res.json({
         success: false,
         error: "Comment already liked by this user",
@@ -276,7 +268,7 @@ router.post("/:id/like", authMiddleware, async (req, res) => {
   }
 });
 
-// DELETE /api/comments/:id/like - Unlike a comment
+// DELETE /api/comments/:id/like
 router.delete("/:id/like", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
@@ -299,7 +291,6 @@ router.delete("/:id/like", authMiddleware, async (req, res) => {
         message: "Comment unliked successfully",
       });
     } else {
-      // Comment was not liked by this user
       res.json({
         success: false,
         error: "Comment not liked by this user",
