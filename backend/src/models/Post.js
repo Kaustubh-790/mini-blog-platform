@@ -41,7 +41,6 @@ class Post {
     const db = getDB();
     const query = {};
 
-    // Apply filters
     if (filters.status) {
       query.status = filters.status;
     }
@@ -54,7 +53,16 @@ class Post {
       query.tags = { $in: filters.tags };
     }
 
-    // Default to published posts if no status filter
+    if (filters.search && filters.search.trim()) {
+      const searchRegex = new RegExp(filters.search.trim(), "i");
+      query.$or = [
+        { title: searchRegex },
+        { excerpt: searchRegex },
+        { tags: { $in: [searchRegex] } },
+        { category: searchRegex },
+      ];
+    }
+
     if (!filters.status) {
       query.status = "published";
     }
@@ -75,7 +83,6 @@ class Post {
     const db = getDB();
     const query = {};
 
-    // Apply filters (same as findAll)
     if (filters.status) {
       query.status = filters.status;
     }
@@ -88,7 +95,16 @@ class Post {
       query.tags = { $in: filters.tags };
     }
 
-    // Default to published posts if no status filter
+    if (filters.search && filters.search.trim()) {
+      const searchRegex = new RegExp(filters.search.trim(), "i");
+      query.$or = [
+        { title: searchRegex },
+        { excerpt: searchRegex },
+        { tags: { $in: [searchRegex] } },
+        { category: searchRegex },
+      ];
+    }
+
     if (!filters.status) {
       query.status = "published";
     }
@@ -135,17 +151,15 @@ class Post {
       .toArray();
   }
 
-  // Generate slug from title
   static generateSlug(title) {
     return title
       .toLowerCase()
-      .replace(/[^a-z0-9 -]/g, "") // Remove special characters
-      .replace(/\s+/g, "-") // Replace spaces with hyphens
-      .replace(/-+/g, "-") // Replace multiple hyphens with single
-      .trim("-"); // Remove leading/trailing hyphens
+      .replace(/[^a-z0-9 -]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .trim("-");
   }
 
-  // Check if slug is unique
   static async isSlugUnique(slug, excludeId = null) {
     const db = getDB();
     const query = { slug };
@@ -158,7 +172,6 @@ class Post {
     return !existing;
   }
 
-  // Get unique slug (handles duplicates)
   static async getUniqueSlug(title, excludeId = null) {
     let baseSlug = this.generateSlug(title);
     let slug = baseSlug;
@@ -172,7 +185,6 @@ class Post {
     return slug;
   }
 
-  // Delete all posts by author
   static async deleteByAuthor(authorUid) {
     const db = getDB();
     const result = await db.collection("posts").deleteMany({ authorUid });

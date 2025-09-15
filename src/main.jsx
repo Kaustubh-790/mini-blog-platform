@@ -10,6 +10,7 @@ import { BlogDetail } from "./pages/BlogDetail";
 import CreateBlog from "./pages/CreateBlog";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
+import SearchResults from "./pages/SearchResults";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import "./index.css";
@@ -21,6 +22,7 @@ const router = createBrowserRouter([
       { path: "/", element: <Home /> },
       { path: "/login", element: <Login /> },
       { path: "/signup", element: <Signup /> },
+      { path: "/search", element: <SearchResults /> },
       { path: "/blog/:id", element: <BlogDetail /> },
       {
         path: "/create",

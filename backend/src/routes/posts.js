@@ -18,6 +18,7 @@ router.get("/", optionalAuthMiddleware, async (req, res) => {
       status,
       author,
       tags,
+      search,
       sortBy = "publishedAt",
       sortOrder = "desc",
     } = req.query;
@@ -36,6 +37,10 @@ router.get("/", optionalAuthMiddleware, async (req, res) => {
 
     if (tags) {
       filters.tags = Array.isArray(tags) ? tags : [tags];
+    }
+
+    if (search) {
+      filters.search = search;
     }
 
     const posts = await Post.findAll(filters);

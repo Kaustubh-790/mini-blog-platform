@@ -60,6 +60,12 @@ class ApiService {
     return this.request(`/posts${queryString ? `?${queryString}` : ""}`);
   }
 
+  async searchPosts(searchQuery, params = {}) {
+    const searchParams = { ...params, search: searchQuery };
+    const queryString = new URLSearchParams(searchParams).toString();
+    return this.request(`/posts${queryString ? `?${queryString}` : ""}`);
+  }
+
   async getPost(id) {
     return this.request(`/posts/${id}`);
   }
