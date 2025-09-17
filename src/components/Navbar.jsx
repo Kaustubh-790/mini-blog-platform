@@ -5,6 +5,7 @@ import { Input } from "./ui/Input";
 import { useAuth } from "../contexts/AuthContext";
 import { UserDropdown } from "./UserDropdown";
 import { useState, useEffect, useRef } from "react";
+import { ImageWithFallback } from "./FallBackImage";
 
 export function Navbar() {
   const { user } = useAuth();
@@ -45,41 +46,47 @@ export function Navbar() {
   };
 
   return (
-    <header className="bg-background border-b border-border px-6 py-4">
+    <header className="bg-card/80 backdrop-blur-md sticky top-0 z-50 border-b border-border/50 px-6 py-4 shadow-lg">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-            <div className="w-4 h-4 bg-primary-foreground rounded-sm transform rotate-45"></div>
-          </div>
-          <span className="text-xl font-semibold text-foreground">
+        <Link to="/" className="flex items-center gap-3 group">
+          <ImageWithFallback
+            src={"/logo.png"}
+            alt="ByteBites"
+            className="w-12 h-12 rounded-xl object-contain"
+          />
+          <span className="text-2xl font-bold text-foreground font-heading">
             ByteBites
           </span>
         </Link>
 
-        <div className="flex-1 max-w-md mx-8">
+        <div className="flex-1 max-w-lg mx-8">
           <form onSubmit={handleSearchSubmit}>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
               <Input
                 type="text"
-                placeholder="Search articles, authors, and topics"
-                className="pl-10 pr-4 py-2 w-full"
+                placeholder="Search articles, authors, and topics..."
+                className="pl-12 pr-12 py-3 w-full bg-background/50 border-border/50 focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all duration-200"
                 value={searchQuery}
                 onChange={handleSearchChange}
               />
               {isSearching && (
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-river-600"></div>
                 </div>
               )}
             </div>
           </form>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           {user ? (
             <>
-              <Button variant="default" asChild>
+              <Button
+                variant="default"
+                asChild
+                className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+              >
                 <Link to="/create" className="flex items-center gap-2">
                   <PenTool className="w-4 h-4" />
                   Write
@@ -89,10 +96,17 @@ export function Navbar() {
             </>
           ) : (
             <>
-              <Button variant="ghost" asChild>
+              <Button
+                variant="ghost"
+                asChild
+                className="hover:bg-river-50 hover:text-river-700 transition-colors duration-200"
+              >
                 <Link to="/login">Log In</Link>
               </Button>
-              <Button asChild>
+              <Button
+                asChild
+                className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+              >
                 <Link to="/signup">Sign up</Link>
               </Button>
             </>

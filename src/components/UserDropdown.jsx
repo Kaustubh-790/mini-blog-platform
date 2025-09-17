@@ -58,37 +58,39 @@ export function UserDropdown() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+        className="flex items-center gap-3 px-4 py-2 rounded-xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card/80 hover:border-border transition-all duration-200 group"
       >
         <ImageWithFallback
           src={avatarUrl}
           alt="Profile"
-          className="w-8 h-8 rounded-full object-cover"
+          className="w-9 h-9 rounded-full object-cover border-2 border-river-200 shadow-md group-hover:border-river-300 transition-colors duration-200"
         />
-        <span className="hidden md:block text-sm font-medium text-gray-700 max-w-32 truncate">
+        <span className="hidden md:block text-sm font-semibold text-foreground max-w-32 truncate">
           {displayName}
         </span>
         <ChevronDown
-          className={`w-4 h-4 text-gray-500 transition-transform ${
-            isOpen ? "rotate-180" : ""
+          className={`w-4 h-4 text-muted-foreground transition-all duration-200 ${
+            isOpen ? "rotate-180 text-river-600" : ""
           }`}
         />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-          <div className="px-4 py-3 border-b border-gray-100">
-            <div className="flex items-center gap-3">
+        <div className="absolute right-0 mt-3 w-64 bg-card/95 backdrop-blur-md border border-border/50 rounded-2xl shadow-2xl z-50 animate-fade-in-up">
+          <div className="px-6 py-4 border-b border-border/30">
+            <div className="flex items-center gap-4">
               <ImageWithFallback
                 src={avatarUrl}
                 alt="Profile"
-                className="w-10 h-10 rounded-full object-cover"
+                className="w-12 h-12 rounded-full object-cover border-2 border-river-200 shadow-lg"
               />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
+                <p className="text-sm font-semibold text-foreground truncate">
                   {displayName}
                 </p>
-                <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {user.email}
+                </p>
               </div>
             </div>
           </div>
@@ -97,40 +99,40 @@ export function UserDropdown() {
             <Link
               to="/profile"
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-3 px-6 py-3 text-sm text-foreground hover:bg-river-50/50 hover:text-river-700 transition-all duration-200 group"
             >
-              <User className="w-4 h-4" />
+              <User className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
               Profile
             </Link>
 
             <Link
               to="/settings"
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-3 px-6 py-3 text-sm text-foreground hover:bg-river-50/50 hover:text-river-700 transition-all duration-200 group"
             >
-              <Settings className="w-4 h-4" />
+              <Settings className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
               Settings
             </Link>
 
             <button
               onClick={toggleTheme}
-              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              className="w-full flex items-center gap-3 px-6 py-3 text-sm text-foreground hover:bg-river-50/50 hover:text-river-700 transition-all duration-200 group"
             >
               {theme === "light" ? (
-                <Moon className="w-4 h-4" />
+                <Moon className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
               ) : (
-                <Sun className="w-4 h-4" />
+                <Sun className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
               )}
               {theme === "light" ? "Dark" : "Light"} mode
             </button>
 
-            <hr className="my-2 border-gray-100" />
+            <hr className="my-2 border-border/30" />
 
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              className="w-full flex items-center gap-3 px-6 py-3 text-sm text-destructive hover:bg-destructive/10 transition-all duration-200 group"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
               Log out
             </button>
           </div>

@@ -11,6 +11,7 @@ import CreateBlog from "./pages/CreateBlog";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import SearchResults from "./pages/SearchResults";
+import NotFound from "./pages/404";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import "./index.css";
@@ -55,6 +56,11 @@ const router = createBrowserRouter([
             <Settings />
           </ProtectedRoute>
         ),
+      },
+      // Catch-all route for 404 pages
+      {
+        path: "*",
+        element: <NotFound />,
       },
     ],
   },

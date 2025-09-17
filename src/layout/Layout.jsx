@@ -12,9 +12,9 @@ export function Layout() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-transparent">
+    <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
-      <main className="flex-1">
+      <main className="flex-1 bg-background">
         <Outlet />
       </main>
       <Footer />

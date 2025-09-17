@@ -5,10 +5,13 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import apiService from "../services/api";
 import { Search, ArrowLeft } from "lucide-react";
 import { Button } from "../components/ui/Button";
+import { useScrollToTop } from "../hooks/useScrollToTop";
 
 export default function SearchResults() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  useScrollToTop(); // Scroll to top when component mounts or route changes
+
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -88,7 +91,7 @@ export default function SearchResults() {
         key="prev"
         onClick={() => handlePageChange(pagination.page - 1)}
         disabled={pagination.page === 1}
-        className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="px-3 py-2 text-sm font-medium text-muted-foreground bg-background border border-border rounded-l-md hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Previous
       </button>
@@ -102,7 +105,7 @@ export default function SearchResults() {
           className={`px-3 py-2 text-sm font-medium border-t border-b ${
             i === pagination.page
               ? "text-blue-600 bg-blue-50 border-blue-500"
-              : "text-gray-500 bg-white border-gray-300 hover:bg-gray-50"
+              : "text-muted-foreground bg-background border-border hover:bg-muted"
           }`}
         >
           {i}
@@ -115,7 +118,7 @@ export default function SearchResults() {
         key="next"
         onClick={() => handlePageChange(pagination.page + 1)}
         disabled={pagination.page === pagination.totalPages}
-        className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="px-3 py-2 text-sm font-medium text-muted-foreground bg-background border border-border rounded-r-md hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Next
       </button>
@@ -130,7 +133,7 @@ export default function SearchResults() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-muted py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-center items-center h-64">
             <LoadingSpinner />
@@ -141,25 +144,27 @@ export default function SearchResults() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-muted py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <Button
             variant="ghost"
             onClick={() => navigate(-1)}
-            className="mb-4 flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            className="mb-4 flex items-center gap-2 text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="w-4 h-4" />
             Back
           </Button>
 
           <div className="flex items-center gap-3 mb-4">
-            <Search className="w-6 h-6 text-gray-600" />
-            <h1 className="text-3xl font-bold text-gray-900">Search Results</h1>
+            <Search className="w-6 h-6 text-muted-foreground" />
+            <h1 className="text-3xl font-bold text-foreground">
+              Search Results
+            </h1>
           </div>
 
           {searchQuery && (
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-muted-foreground">
               {pagination.total > 0 ? (
                 <>
                   Found{" "}
@@ -194,22 +199,22 @@ export default function SearchResults() {
 
         {!searchQuery.trim() ? (
           <div className="text-center py-12">
-            <Search className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <Search className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">
               Enter a search term
             </h3>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Use the search bar in the navigation to find articles, authors,
               and topics.
             </p>
           </div>
         ) : posts.length === 0 ? (
           <div className="text-center py-12">
-            <Search className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <Search className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">
               No results found
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-muted-foreground mb-4">
               Try searching with different keywords or check your spelling.
             </p>
             <Button onClick={() => navigate("/")} variant="default">

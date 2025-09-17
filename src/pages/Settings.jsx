@@ -12,13 +12,14 @@ import {
   Palette,
   Save,
   Upload,
-  Trash2,
   Settings as SettingsIcon,
 } from "lucide-react";
+import { useScrollToTop } from "../hooks/useScrollToTop";
 
 const Settings = () => {
   const { user, userProfile, refreshUserProfile } = useAuth();
   const navigate = useNavigate();
+  useScrollToTop();
 
   const [loading, setLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
@@ -249,28 +250,6 @@ const Settings = () => {
     }
   };
 
-  const handleDeleteAccount = async () => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete your account? This action cannot be undone."
-      )
-    ) {
-      try {
-        setSaveLoading(true);
-        const token = await user.getIdToken();
-        await api.deleteAccount(token);
-        navigate("/");
-      } catch (error) {
-        setErrors((prev) => ({
-          ...prev,
-          general: error.message,
-        }));
-      } finally {
-        setSaveLoading(false);
-      }
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -282,17 +261,16 @@ const Settings = () => {
   const tabs = [
     { id: "profile", label: "Profile", icon: User },
     { id: "preferences", label: "Preferences", icon: Palette },
-    { id: "delete", label: "Delete Account", icon: Trash2 },
   ];
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <SettingsIcon className="w-6 h-6 text-gray-600" />
-          <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
+          <SettingsIcon className="w-6 h-6 text-muted-foreground" />
+          <h1 className="text-3xl font-bold text-foreground">Settings</h1>
         </div>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           Manage your account settings and preferences
         </p>
       </div>
@@ -321,7 +299,7 @@ const Settings = () => {
                   className={`w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg transition-colors ${
                     activeTab === tab.id
                       ? "bg-blue-50 text-blue-700 border border-blue-200"
-                      : "text-gray-600 hover:bg-gray-50"
+                      : "text-muted-foreground hover:bg-muted"
                   }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -333,7 +311,7 @@ const Settings = () => {
         </div>
 
         <div className="lg:col-span-3">
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="bg-card rounded-lg border border-border p-6">
             {activeTab === "profile" && (
               <div>
                 <h2 className="text-xl font-semibold mb-6">
@@ -341,7 +319,7 @@ const Settings = () => {
                 </h2>
 
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Profile Picture
                   </label>
                   <div className="flex items-center gap-4">
@@ -360,7 +338,7 @@ const Settings = () => {
                       />
                       <label
                         htmlFor="avatar-upload"
-                        className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                        className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 border border-border rounded-md text-sm font-medium text-foreground bg-background hover:bg-muted"
                       >
                         <Upload className="w-4 h-4" />
                         Change Photo
@@ -376,7 +354,7 @@ const Settings = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       Display Name *
                     </label>
                     <Input
@@ -393,7 +371,7 @@ const Settings = () => {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       Twitter
                     </label>
                     <Input
@@ -413,7 +391,7 @@ const Settings = () => {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       LinkedIn
                     </label>
                     <Input
@@ -433,7 +411,7 @@ const Settings = () => {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       Instagram
                     </label>
                     <Input
@@ -453,7 +431,7 @@ const Settings = () => {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       Bio
                     </label>
                     <Textarea
@@ -465,7 +443,7 @@ const Settings = () => {
                       rows={4}
                       maxLength={500}
                     />
-                    <p className="text-gray-500 text-sm mt-1">
+                    <p className="text-muted-foreground text-sm mt-1">
                       {profileData.bio.length}/500 characters
                     </p>
                   </div>
@@ -494,7 +472,7 @@ const Settings = () => {
 
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       Theme
                     </label>
                     <select
@@ -510,7 +488,7 @@ const Settings = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       Draft Retention (days)
                     </label>
                     <Input
@@ -531,7 +509,7 @@ const Settings = () => {
                     <label className="flex items-center justify-between">
                       <div>
                         <div className="font-medium">Auto-save Drafts</div>
-                        <div className="text-gray-600 text-sm">
+                        <div className="text-muted-foreground text-sm">
                           Automatically save your work while writing
                         </div>
                       </div>
@@ -559,32 +537,6 @@ const Settings = () => {
                       <Save className="w-4 h-4" />
                     )}
                     Save Settings
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "delete" && (
-              <div>
-                <h2 className="text-xl font-semibold mb-6">Delete Account</h2>
-
-                <div className="space-y-6">
-                  <p className="text-red-600 mb-4">
-                    Permanently delete your account and all associated data.
-                    This action cannot be undone.
-                  </p>
-                  <Button
-                    variant="outline"
-                    onClick={handleDeleteAccount}
-                    disabled={saveLoading}
-                    className="flex items-center gap-2 text-red-600 border-red-300 hover:bg-red-100"
-                  >
-                    {saveLoading ? (
-                      <LoadingSpinner />
-                    ) : (
-                      <Trash2 className="w-4 h-4" />
-                    )}
-                    Delete Account
                   </Button>
                 </div>
               </div>
