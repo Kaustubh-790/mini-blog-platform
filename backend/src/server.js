@@ -22,6 +22,13 @@ const limiter = rateLimit({
   message: "Too many requests from this IP, please try again later.",
 });
 
+app.use(express.static(path.join(__dirname, "../../dist")));
+app.use("/assets", express.static(path.join(__dirname, "../../dist/assets")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../dist/index.html"));
+});
+
 // CORS Config
 app.use(
   cors({
