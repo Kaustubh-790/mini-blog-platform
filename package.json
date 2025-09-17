@@ -9,9 +9,7 @@
     "dev:full": "concurrently \"npm run dev\" \"npm run dev:backend\"",
     "build": "vite build",
     "build:prod": "vite build --mode production",
-    "build:backend": "cd backend && npm run build:frontend",
-    "build:all": "npm run build:prod && npm run build:backend",
-    "start": "cd backend && npm start",
+    "start": "vite preview",
     "install:all": "npm install && cd backend && npm install",
     "lint": "eslint .",
     "preview": "vite preview"

@@ -28,6 +28,9 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5000",
   "https://blog-platform.onrender.com",
+  // Vercel domains
+  /^https:\/\/.*\.vercel\.app$/,
+  /^https:\/\/.*\.vercel\.dev$/,
 ].filter(Boolean);
 
 app.use(
@@ -86,17 +89,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.use(express.static(path.join(__dirname, "../../dist")));
-
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../dist/index.html"));
-});
-
+// API routes only - no static file serving
 app.use((req, res) => {
   if (req.path.startsWith("/api/")) {
     return res.status(404).json({ error: "API route not found" });
   }
-  res.sendFile(path.join(__dirname, "../../dist/index.html"));
+  res.status(404).json({ error: "Route not found" });
 });
 
 app.listen(PORT, () => {
