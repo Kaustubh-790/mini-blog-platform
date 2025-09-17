@@ -23,9 +23,11 @@ export default function SearchResults() {
   });
 
   const searchQuery = searchParams.get("q") || "";
+  const category = searchParams.get("category") || "";
 
   const fetchSearchResults = async (page = 1) => {
-    if (!searchQuery.trim()) {
+    // If no search query and no category, show empty state
+    if (!searchQuery.trim() && !category.trim()) {
       setPosts([]);
       setLoading(false);
       return;
@@ -35,13 +37,28 @@ export default function SearchResults() {
       setLoading(true);
       setError(null);
 
-      const response = await apiService.searchPosts(searchQuery, {
-        page,
-        limit: pagination.limit,
-        status: "published",
-        sortBy: "publishedAt",
-        sortOrder: "desc",
-      });
+      let response;
+
+      if (searchQuery.trim()) {
+        // Search by query
+        response = await apiService.searchPosts(searchQuery, {
+          page,
+          limit: pagination.limit,
+          status: "published",
+          sortBy: "publishedAt",
+          sortOrder: "desc",
+        });
+      } else if (category.trim()) {
+        // Filter by category
+        response = await apiService.getPosts({
+          page,
+          limit: pagination.limit,
+          status: "published",
+          category: category,
+          sortBy: "publishedAt",
+          sortOrder: "desc",
+        });
+      }
 
       if (response.success) {
         setPosts(response.data);
@@ -59,7 +76,7 @@ export default function SearchResults() {
 
   useEffect(() => {
     fetchSearchResults(1);
-  }, [searchQuery]);
+  }, [searchQuery, category]);
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
@@ -159,7 +176,11 @@ export default function SearchResults() {
           <div className="flex items-center gap-3 mb-4">
             <Search className="w-6 h-6 text-muted-foreground" />
             <h1 className="text-3xl font-bold text-foreground">
-              Search Results
+              {category
+                ? `${
+                    category.charAt(0).toUpperCase() + category.slice(1)
+                  } Articles`
+                : "Search Results"}
             </h1>
           </div>
 
@@ -179,6 +200,28 @@ export default function SearchResults() {
                   No results found for{" "}
                   <span className="font-semibold text-blue-600">
                     "{searchQuery}"
+                  </span>
+                </>
+              )}
+            </p>
+          )}
+
+          {category && !searchQuery && (
+            <p className="text-lg text-muted-foreground">
+              {pagination.total > 0 ? (
+                <>
+                  Found{" "}
+                  <span className="font-semibold">{pagination.total}</span>{" "}
+                  article{pagination.total !== 1 ? "s" : ""} in{" "}
+                  <span className="font-semibold text-blue-600">
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </span>
+                </>
+              ) : (
+                <>
+                  No articles found in{" "}
+                  <span className="font-semibold text-blue-600">
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
                   </span>
                 </>
               )}
@@ -212,10 +255,16 @@ export default function SearchResults() {
           <div className="text-center py-12">
             <Search className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium text-foreground mb-2">
-              No results found
+              {category
+                ? `No articles found in ${
+                    category.charAt(0).toUpperCase() + category.slice(1)
+                  }`
+                : "No results found"}
             </h3>
             <p className="text-muted-foreground mb-4">
-              Try searching with different keywords or check your spelling.
+              {category
+                ? "This category doesn't have any articles yet. Check back later or browse other categories."
+                : "Try searching with different keywords or check your spelling."}
             </p>
             <Button onClick={() => navigate("/")} variant="default">
               Browse All Articles
