@@ -29,16 +29,62 @@ class ApiService {
     };
 
     try {
-      const response = await fetch(url, config);
-      const data = await response.json();
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
+      const response = await fetch(url, {
+        ...config,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      // Handle different response types
+      let data;
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        data = await response.text();
+      }
 
       if (!response.ok) {
-        throw new Error(data.error || data.message || "Request failed");
+        const error = new Error(
+          data.error ||
+            data.message ||
+            `Request failed with status ${response.status}`
+        );
+        error.status = response.status;
+        error.code = response.status >= 500 ? "BACKEND_ERROR" : "CLIENT_ERROR";
+        throw error;
       }
 
       return data;
     } catch (error) {
       console.error("API request failed:", error);
+
+      // Enhance error with more context
+      if (error.name === "AbortError") {
+        const timeoutError = new Error(
+          "Request timeout - backend may be starting up"
+        );
+        timeoutError.code = "TIMEOUT";
+        timeoutError.status = 408;
+        throw timeoutError;
+      }
+
+      if (
+        error.message.includes("Failed to fetch") ||
+        error.message.includes("NetworkError")
+      ) {
+        const networkError = new Error(
+          "Cannot connect to backend - server may be down"
+        );
+        networkError.code = "NETWORK_ERROR";
+        networkError.status = 0;
+        throw networkError;
+      }
+
       throw error;
     }
   }

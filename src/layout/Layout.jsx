@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
+import BackendStatus from "../components/BackendStatus";
 
 export function Layout() {
   const location = useLocation();
@@ -8,7 +9,12 @@ export function Layout() {
     location.pathname === "/login" || location.pathname === "/signup";
 
   if (isAuthPage) {
-    return <Outlet />;
+    return (
+      <>
+        <Outlet />
+        <BackendStatus />
+      </>
+    );
   }
 
   return (
@@ -18,6 +24,7 @@ export function Layout() {
         <Outlet />
       </main>
       <Footer />
+      <BackendStatus />
     </div>
   );
 }
