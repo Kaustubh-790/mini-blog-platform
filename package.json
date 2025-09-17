@@ -1,11 +1,18 @@
 {
-  "name": "frontend",
+  "name": "blog-platform",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:full": "concurrently \"npm run dev\" \"npm run dev:backend\"",
     "build": "vite build",
+    "build:prod": "vite build --mode production",
+    "build:backend": "cd backend && npm run build:frontend",
+    "build:all": "npm run build:prod && npm run build:backend",
+    "start": "cd backend && npm start",
+    "install:all": "npm install && cd backend && npm install",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -35,6 +42,7 @@
     "@types/react": "^18.3.24",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^5.0.0",
+    "concurrently": "^9.2.1",
     "eslint": "^9.33.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",

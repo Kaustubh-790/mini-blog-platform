@@ -15,6 +15,7 @@ const uploadRoutes = require("./routes/uploads");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const NODE_ENV = process.env.NODE_ENV || "development";
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -22,33 +23,26 @@ const limiter = rateLimit({
   message: "Too many requests from this IP, please try again later.",
 });
 
-app.use(express.static(path.join(__dirname, "../../dist")));
-app.use("/assets", express.static(path.join(__dirname, "../../dist/assets")));
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "http://localhost:5173",
+  "http://localhost:5000",
+  "https://blog-platform.onrender.com",
+].filter(Boolean);
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../dist/index.html"));
-});
-
-// CORS Config
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: NODE_ENV === "production" ? allowedOrigins : true,
     credentials: true,
   })
 );
 
-app.use(
-  helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" },
-  })
-);
 app.use(compression());
 app.use(morgan("combined"));
 app.use(limiter);
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Serve static files with CORS headers
 app.use(
   "/uploads",
   (req, res, next) => {
@@ -88,16 +82,29 @@ app.use((err, req, res, next) => {
   console.error("Error:", err);
   res.status(err.status || 500).json({
     error: err.message || "Internal Server Error",
-    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+    ...(NODE_ENV === "development" && { stack: err.stack }),
   });
 });
 
+app.use(express.static(path.join(__dirname, "../../dist")));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../../dist/index.html"));
+});
+
 app.use((req, res) => {
-  res.status(404).json({ error: "Route not found" });
+  if (req.path.startsWith("/api/")) {
+    return res.status(404).json({ error: "API route not found" });
+  }
+  res.sendFile(path.join(__dirname, "../../dist/index.html"));
 });
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Environment: ${NODE_ENV}`);
+  console.log(
+    `Frontend URL: ${process.env.FRONTEND_URL || "http://localhost:5173"}`
+  );
 });
 
 module.exports = app;

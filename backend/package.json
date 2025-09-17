@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
+    "build": "cd .. && npm run build:prod",
+    "build:frontend": "cd .. && npm run build:prod",
     "test": "jest --detectOpenHandles --forceExit",
     "test:watch": "jest --watch",
     "lint": "echo \"No linter configured\""
