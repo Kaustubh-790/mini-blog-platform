@@ -163,10 +163,6 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-river-50/50 via-transparent to-river-100/30"></div>
           <div className="relative max-w-7xl mx-auto px-6 py-16 lg:py-24">
             <div className="text-center max-w-3xl mx-auto">
-              <div className="inline-flex items-center gap-2 bg-river-50 text-river-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-                <div className="w-2 h-2 bg-river-500 rounded-full animate-pulse"></div>
-                Welcome to ByteBites
-              </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
                 Discover Amazing
                 <span className="bg-gradient-to-r from-river-600 to-river-800 bg-clip-text text-foreground">

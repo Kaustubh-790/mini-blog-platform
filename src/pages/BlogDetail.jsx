@@ -301,7 +301,6 @@ export function BlogDetail() {
                     className="w-16 h-16 rounded-full object-cover border-3 border-river-200 shadow-lg"
                     loading="lazy"
                   />
-                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-river-500 rounded-full border-2 border-card"></div>
                 </div>
                 <div className="text-left">
                   <p className="font-semibold text-foreground text-lg">
@@ -337,21 +336,6 @@ export function BlogDetail() {
                     Edit
                   </Button>
                 )}
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="hover:scale-105 transition-transform duration-200"
-                >
-                  <Share2 className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="hover:scale-105 transition-transform duration-200"
-                >
-                  <Bookmark className="w-4 h-4" />
-                </Button>
               </div>
             </div>
 
@@ -400,7 +384,6 @@ export function BlogDetail() {
                       alt="Your avatar"
                       className="w-12 h-12 rounded-full object-cover flex-shrink-0 border-2 border-river-200 shadow-md"
                     />
-                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-river-500 rounded-full border-2 border-card"></div>
                   </div>
                   <div className="flex-1">
                     <Textarea
@@ -456,7 +439,6 @@ export function BlogDetail() {
                         alt={comment.author?.name || "Commenter"}
                         className="w-12 h-12 rounded-full object-cover flex-shrink-0 border-2 border-river-200 shadow-md"
                       />
-                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-river-500 rounded-full border-2 border-card"></div>
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">

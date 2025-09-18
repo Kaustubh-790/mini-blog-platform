@@ -219,7 +219,7 @@ const Profile = () => {
                 </p>
                 <Button
                   onClick={() => navigate("/create")}
-                  className="bg-gradient-to-r from-river-500 to-river-600 hover:from-river-600 hover:to-river-700 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
                 >
                   Create your first post
                 </Button>
