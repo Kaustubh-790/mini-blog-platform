@@ -320,9 +320,4 @@ h3 {
   font-family: var(--font-family-body);
 }
 
-@font-face {
-  font-family: "Playfair Display";
-  font-style: normal;
-  font-weight: 400;
-  src: url();
-}
+

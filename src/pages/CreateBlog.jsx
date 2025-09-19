@@ -340,7 +340,7 @@ export default function CreateBlog() {
             <Button
               variant="ghost"
               onClick={() => navigate("/")}
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors duration-200 group"
+              className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
             >
               <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform duration-200" />
               Back to Home
