@@ -84,7 +84,6 @@ class HealthCheckService {
     }, interval);
   }
 
-  // Stop periodic health checks
   stopPeriodicCheck() {
     if (this.checkInterval) {
       clearInterval(this.checkInterval);
@@ -92,7 +91,6 @@ class HealthCheckService {
     }
   }
 
-  // Get current health status
   getStatus() {
     return {
       isHealthy: this.isHealthy,
@@ -102,7 +100,6 @@ class HealthCheckService {
     };
   }
 
-  // Check if backend is likely waking up (recent failures but not too many)
   isBackendWakingUp() {
     return (
       !this.isHealthy &&
@@ -111,7 +108,6 @@ class HealthCheckService {
     );
   }
 
-  // Check if backend is completely down (too many failures)
   isBackendDown() {
     return !this.isHealthy && this.retryCount > this.maxRetries;
   }

@@ -7,6 +7,13 @@ const { authMiddleware } = require("../middleware/auth");
 
 const router = express.Router();
 
+// Utility function to get the correct protocol for URLs
+const getProtocol = (req) => {
+  const protocol = req.get("X-Forwarded-Proto") || req.protocol;
+  const isProduction = process.env.NODE_ENV === "production";
+  return isProduction ? "https" : protocol;
+};
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = path.join(__dirname, "../../uploads");
@@ -82,7 +89,7 @@ router.post("/", authMiddleware, upload.single("image"), async (req, res) => {
         "_optimized.webp"
       );
 
-      const fileUrl = `${req.protocol}://${req.get(
+      const fileUrl = `${getProtocol(req)}://${req.get(
         "host"
       )}/uploads/${optimizedFilename}`;
 
@@ -106,7 +113,7 @@ router.post("/", authMiddleware, upload.single("image"), async (req, res) => {
     } catch (optimizationError) {
       console.error("Image optimization error:", optimizationError);
 
-      const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${
+      const fileUrl = `${getProtocol(req)}://${req.get("host")}/uploads/${
         req.file.filename
       }`;
 
@@ -154,7 +161,9 @@ router.post(
         filename: file.filename,
         originalName: file.originalname,
         size: file.size,
-        url: `${req.protocol}://${req.get("host")}/uploads/${file.filename}`,
+        url: `${getProtocol(req)}://${req.get("host")}/uploads/${
+          file.filename
+        }`,
         uploadedAt: new Date(),
       }));
 

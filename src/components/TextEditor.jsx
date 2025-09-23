@@ -17,6 +17,7 @@ import {
   Check,
   Upload,
 } from "lucide-react";
+import { ensureHttpsUrl } from "./Utils/utils";
 
 const TextEditor = ({
   value,
@@ -90,7 +91,8 @@ const TextEditor = ({
 
   const handleImageSubmit = () => {
     if (imageUrl.trim()) {
-      const img = `<img src="${imageUrl}" alt="${
+      const httpsImageUrl = ensureHttpsUrl(imageUrl);
+      const img = `<img src="${httpsImageUrl}" alt="${
         imageAlt || "Image"
       }" style="max-width: 100%; height: auto; border-radius: 8px; margin: 1em 0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);" />`;
       executeCommand("insertHTML", img);
