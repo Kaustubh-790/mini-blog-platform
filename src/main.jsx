@@ -15,7 +15,6 @@ import NotFound from "./pages/404";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import "./index.css";
-import healthCheckService from "./services/healthCheck";
 
 const router = createBrowserRouter([
   {
@@ -66,8 +65,6 @@ const router = createBrowserRouter([
     ],
   },
 ]);
-
-healthCheckService.startPeriodicCheck(30000);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <AuthProvider>
