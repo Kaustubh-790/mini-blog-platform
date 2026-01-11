@@ -1,5 +1,4 @@
 import { useState, useCallback } from "react";
-import healthCheckService from "../services/healthCheck";
 
 export const useApiWithRetry = () => {
   const [isRetrying, setIsRetrying] = useState(false);
@@ -15,10 +14,6 @@ export const useApiWithRetry = () => {
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        if (attempt > 1) {
-          await healthCheckService.checkHealth();
-        }
-
         const result = await apiCall();
         return result;
       } catch (error) {

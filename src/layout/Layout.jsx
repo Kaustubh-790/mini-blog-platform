@@ -1,7 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
-import BackendStatus from "../components/BackendStatus";
 
 export function Layout() {
   const location = useLocation();
@@ -12,7 +11,6 @@ export function Layout() {
     return (
       <>
         <Outlet />
-        <BackendStatus />
       </>
     );
   }
@@ -24,7 +22,6 @@ export function Layout() {
         <Outlet />
       </main>
       <Footer />
-      <BackendStatus />
     </div>
   );
 }

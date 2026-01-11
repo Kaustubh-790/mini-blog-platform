@@ -5,6 +5,8 @@ const compression = require("compression");
 const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
 const path = require("path");
+const keepAlive = require("./jobs/keepAlive");
+
 require("dotenv").config();
 
 const authRoutes = require("./routes/auth");
@@ -28,7 +30,6 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5000",
   "https://blog-platform.onrender.com",
-  // Vercel domains
   /^https:\/\/.*\.vercel\.app$/,
   /^https:\/\/.*\.vercel\.dev$/,
 ].filter(Boolean);
@@ -89,7 +90,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// API routes only - no static file serving
 app.use((req, res) => {
   if (req.path.startsWith("/api/")) {
     return res.status(404).json({ error: "API route not found" });
@@ -103,6 +103,8 @@ app.listen(PORT, () => {
   console.log(
     `Frontend URL: ${process.env.FRONTEND_URL || "http://localhost:5173"}`
   );
+
+  keepAlive();
 });
 
 module.exports = app;
