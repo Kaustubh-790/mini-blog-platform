@@ -38,7 +38,7 @@ app.use(
   cors({
     origin: NODE_ENV === "production" ? allowedOrigins : true,
     credentials: true,
-  })
+  }),
 );
 
 app.use(compression());
@@ -53,11 +53,11 @@ app.use(
     res.header("Access-Control-Allow-Origin", "*");
     res.header(
       "Access-Control-Allow-Methods",
-      "GET, POST, PUT, DELETE, OPTIONS"
+      "GET, POST, PUT, DELETE, OPTIONS",
     );
     res.header(
       "Access-Control-Allow-Headers",
-      "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+      "Origin, X-Requested-With, Content-Type, Accept, Authorization",
     );
     res.header("Access-Control-Allow-Credentials", "false");
     res.header("Cross-Origin-Resource-Policy", "cross-origin");
@@ -69,7 +69,7 @@ app.use(
 
     next();
   },
-  express.static(path.join(__dirname, "../uploads"))
+  express.static(path.join(__dirname, "../uploads")),
 );
 
 app.use("/api/auth", authRoutes);
@@ -101,10 +101,10 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${NODE_ENV}`);
   console.log(
-    `Frontend URL: ${process.env.FRONTEND_URL || "http://localhost:5173"}`
+    `Frontend URL: ${process.env.FRONTEND_URL || "http://localhost:5173"}`,
   );
 
-  keepAlive();
+  // keepAlive();
 });
 
 module.exports = app;
